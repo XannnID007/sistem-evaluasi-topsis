@@ -219,7 +219,6 @@
 
                 <!-- Page Title -->
                 <div class="flex-1 lg:flex-none">
-                    <h1 class="text-2xl font-bold text-gray-900">@yield('title', 'Dashboard')</h1>
                     <p class="text-sm text-gray-500 mt-1">
                         {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, DD MMMM YYYY') }}</p>
                 </div>

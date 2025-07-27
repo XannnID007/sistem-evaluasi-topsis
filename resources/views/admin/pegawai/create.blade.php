@@ -124,18 +124,46 @@
                             <select id="kelas_jabatan" name="kelas_jabatan" required
                                 class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 @error('kelas_jabatan') border-red-500 @enderror">
                                 <option value="">Pilih Kelas Jabatan</option>
-                                <option value="Staff" {{ old('kelas_jabatan') == 'Staff' ? 'selected' : '' }}>Staff
-                                </option>
-                                <option value="Supervisor" {{ old('kelas_jabatan') == 'Supervisor' ? 'selected' : '' }}>
-                                    Supervisor</option>
-                                <option value="Kepala Seksi"
-                                    {{ old('kelas_jabatan') == 'Kepala Seksi' ? 'selected' : '' }}>Kepala Seksi</option>
-                                <option value="Camat" {{ old('kelas_jabatan') == 'Camat' ? 'selected' : '' }}>Camat
-                                </option>
+                                <option value="17" {{ old('kelas_jabatan') == '17' ? 'selected' : '' }}>Kelas 17
+                                    (Eselon I)</option>
+                                <option value="16" {{ old('kelas_jabatan') == '16' ? 'selected' : '' }}>Kelas 16
+                                    (Eselon II.a)</option>
+                                <option value="15" {{ old('kelas_jabatan') == '15' ? 'selected' : '' }}>Kelas 15
+                                    (Eselon II.b)</option>
+                                <option value="14" {{ old('kelas_jabatan') == '14' ? 'selected' : '' }}>Kelas 14
+                                    (Eselon III.a)</option>
+                                <option value="13" {{ old('kelas_jabatan') == '13' ? 'selected' : '' }}>Kelas 13
+                                    (Eselon III.b)</option>
+                                <option value="12" {{ old('kelas_jabatan') == '12' ? 'selected' : '' }}>Kelas 12
+                                    (Eselon IV.a/Camat)</option>
+                                <option value="11" {{ old('kelas_jabatan') == '11' ? 'selected' : '' }}>Kelas 11
+                                    (Eselon IV.b/Sekretaris)</option>
+                                <option value="10" {{ old('kelas_jabatan') == '10' ? 'selected' : '' }}>Kelas 10
+                                    (Fungsional Ahli Utama)</option>
+                                <option value="9" {{ old('kelas_jabatan') == '9' ? 'selected' : '' }}>Kelas 9
+                                    (Fungsional Ahli Madya/Kasi)</option>
+                                <option value="8" {{ old('kelas_jabatan') == '8' ? 'selected' : '' }}>Kelas 8
+                                    (Fungsional Ahli Muda)</option>
+                                <option value="7" {{ old('kelas_jabatan') == '7' ? 'selected' : '' }}>Kelas 7
+                                    (Fungsional Ahli Pertama)</option>
+                                <option value="6" {{ old('kelas_jabatan') == '6' ? 'selected' : '' }}>Kelas 6
+                                    (Fungsional Terampil Penyelia)</option>
+                                <option value="5" {{ old('kelas_jabatan') == '5' ? 'selected' : '' }}>Kelas 5
+                                    (Fungsional Terampil Mahir)</option>
+                                <option value="4" {{ old('kelas_jabatan') == '4' ? 'selected' : '' }}>Kelas 4
+                                    (Fungsional Terampil Terampil)</option>
+                                <option value="3" {{ old('kelas_jabatan') == '3' ? 'selected' : '' }}>Kelas 3
+                                    (Fungsional Terampil Pemula)</option>
+                                <option value="2" {{ old('kelas_jabatan') == '2' ? 'selected' : '' }}>Kelas 2
+                                    (Pelaksana Lanjutan)</option>
+                                <option value="1" {{ old('kelas_jabatan') == '1' ? 'selected' : '' }}>Kelas 1
+                                    (Pelaksana Pemula)</option>
                             </select>
                             @error('kelas_jabatan')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Sesuai dengan kelas jabatan PNS berdasarkan PP No. 11
+                                Tahun 2017</p>
                         </div>
 
                         <!-- Status -->

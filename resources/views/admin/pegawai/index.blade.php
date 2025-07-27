@@ -46,12 +46,40 @@
                     <select id="kelas_jabatan" name="kelas_jabatan"
                         class="block w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">Semua Kelas</option>
-                        <option value="Staff" {{ request('kelas_jabatan') == 'Staff' ? 'selected' : '' }}>Staff</option>
-                        <option value="Supervisor" {{ request('kelas_jabatan') == 'Supervisor' ? 'selected' : '' }}>
-                            Supervisor</option>
-                        <option value="Kepala Seksi" {{ request('kelas_jabatan') == 'Kepala Seksi' ? 'selected' : '' }}>
-                            Kepala Seksi</option>
-                        <option value="Camat" {{ request('kelas_jabatan') == 'Camat' ? 'selected' : '' }}>Camat</option>
+                        <option value="17" {{ request('kelas_jabatan') == '17' ? 'selected' : '' }}>Kelas 17 (Eselon I)
+                        </option>
+                        <option value="16" {{ request('kelas_jabatan') == '16' ? 'selected' : '' }}>Kelas 16 (Eselon
+                            II.a)</option>
+                        <option value="15" {{ request('kelas_jabatan') == '15' ? 'selected' : '' }}>Kelas 15 (Eselon
+                            II.b)</option>
+                        <option value="14" {{ request('kelas_jabatan') == '14' ? 'selected' : '' }}>Kelas 14 (Eselon
+                            III.a)</option>
+                        <option value="13" {{ request('kelas_jabatan') == '13' ? 'selected' : '' }}>Kelas 13 (Eselon
+                            III.b)</option>
+                        <option value="12" {{ request('kelas_jabatan') == '12' ? 'selected' : '' }}>Kelas 12 (Camat)
+                        </option>
+                        <option value="11" {{ request('kelas_jabatan') == '11' ? 'selected' : '' }}>Kelas 11
+                            (Sekretaris)</option>
+                        <option value="10" {{ request('kelas_jabatan') == '10' ? 'selected' : '' }}>Kelas 10
+                            (Fungsional Ahli Utama)</option>
+                        <option value="9" {{ request('kelas_jabatan') == '9' ? 'selected' : '' }}>Kelas 9 (Fungsional
+                            Ahli Madya)</option>
+                        <option value="8" {{ request('kelas_jabatan') == '8' ? 'selected' : '' }}>Kelas 8 (Fungsional
+                            Ahli Muda)</option>
+                        <option value="7" {{ request('kelas_jabatan') == '7' ? 'selected' : '' }}>Kelas 7 (Fungsional
+                            Ahli Pertama)</option>
+                        <option value="6" {{ request('kelas_jabatan') == '6' ? 'selected' : '' }}>Kelas 6 (Fungsional
+                            Terampil)</option>
+                        <option value="5" {{ request('kelas_jabatan') == '5' ? 'selected' : '' }}>Kelas 5 (Fungsional
+                            Terampil Mahir)</option>
+                        <option value="4" {{ request('kelas_jabatan') == '4' ? 'selected' : '' }}>Kelas 4 (Fungsional
+                            Terampil)</option>
+                        <option value="3" {{ request('kelas_jabatan') == '3' ? 'selected' : '' }}>Kelas 3 (Fungsional
+                            Terampil Pemula)</option>
+                        <option value="2" {{ request('kelas_jabatan') == '2' ? 'selected' : '' }}>Kelas 2 (Pelaksana
+                            Lanjutan)</option>
+                        <option value="1" {{ request('kelas_jabatan') == '1' ? 'selected' : '' }}>Kelas 1 (Pelaksana
+                            Pemula)</option>
                     </select>
                 </div>
 
@@ -140,17 +168,18 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $p->jabatan }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
-                                            $badgeColor = match ($p->kelas_jabatan) {
-                                                'Camat' => 'purple',
-                                                'Kepala Seksi' => 'indigo',
-                                                'Supervisor' => 'blue',
-                                                'Staff' => 'gray',
+                                            $badgeColor = match (true) {
+                                                $p->kelas_jabatan >= 17 => 'purple',
+                                                $p->kelas_jabatan >= 14 => 'indigo',
+                                                $p->kelas_jabatan >= 12 => 'blue',
+                                                $p->kelas_jabatan >= 9 => 'green',
+                                                $p->kelas_jabatan >= 6 => 'yellow',
                                                 default => 'gray',
                                             };
                                         @endphp
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $badgeColor }}-100 text-{{ $badgeColor }}-800">
-                                            {{ $p->kelas_jabatan }}
+                                            Kelas {{ $p->kelas_jabatan }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $p->telepon ?? '-' }}

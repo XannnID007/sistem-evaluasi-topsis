@@ -24,7 +24,7 @@ class User extends Authenticatable
         'password',
         'role',
         'jabatan',
-        'kelas_jabatan',
+        'kelas_jabatan', // Sekarang integer
         'telepon',
         'alamat',
         'status',
@@ -40,6 +40,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'kelas_jabatan' => 'integer', // Cast ke integer
         ];
     }
 
@@ -81,6 +82,49 @@ class User extends Authenticatable
         return $this->evaluasi()->avg('total_skor') ?? 0;
     }
 
+    // Method untuk kelas jabatan
+    public function getKelasJabatanText()
+    {
+        $kelasJabatan = [
+            17 => 'Kelas 17 (Eselon I)',
+            16 => 'Kelas 16 (Eselon II.a)',
+            15 => 'Kelas 15 (Eselon II.b)',
+            14 => 'Kelas 14 (Eselon III.a)',
+            13 => 'Kelas 13 (Eselon III.b)',
+            12 => 'Kelas 12 (Eselon IV.a/Camat)',
+            11 => 'Kelas 11 (Eselon IV.b/Sekretaris)',
+            10 => 'Kelas 10 (Fungsional Ahli Utama)',
+            9 => 'Kelas 9 (Fungsional Ahli Madya)',
+            8 => 'Kelas 8 (Fungsional Ahli Muda)',
+            7 => 'Kelas 7 (Fungsional Ahli Pertama)',
+            6 => 'Kelas 6 (Fungsional Terampil Penyelia)',
+            5 => 'Kelas 5 (Fungsional Terampil Mahir)',
+            4 => 'Kelas 4 (Fungsional Terampil)',
+            3 => 'Kelas 3 (Fungsional Terampil Pemula)',
+            2 => 'Kelas 2 (Pelaksana Lanjutan)',
+            1 => 'Kelas 1 (Pelaksana Pemula)',
+        ];
+
+        return $kelasJabatan[$this->kelas_jabatan] ?? 'Kelas ' . $this->kelas_jabatan;
+    }
+
+    public function getKelasJabatanBadgeColor()
+    {
+        return match (true) {
+            $this->kelas_jabatan >= 17 => 'purple',
+            $this->kelas_jabatan >= 14 => 'indigo',
+            $this->kelas_jabatan >= 12 => 'blue',
+            $this->kelas_jabatan >= 9 => 'green',
+            $this->kelas_jabatan >= 6 => 'yellow',
+            default => 'gray'
+        };
+    }
+
+    public function getKelasJabatanShort()
+    {
+        return 'Kelas ' . $this->kelas_jabatan;
+    }
+
     // Scope
     public function scopeActive($query)
     {
@@ -95,5 +139,10 @@ class User extends Authenticatable
     public function scopeAdmin($query)
     {
         return $query->where('role', 'admin');
+    }
+
+    public function scopeByKelasJabatan($query, $kelas)
+    {
+        return $query->where('kelas_jabatan', $kelas);
     }
 }

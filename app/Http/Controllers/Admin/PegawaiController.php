@@ -24,7 +24,7 @@ class PegawaiController extends Controller
             });
         }
 
-        // Filter berdasarkan kelas jabatan
+        // Filter berdasarkan kelas jabatan - UPDATE untuk numeric
         if ($request->filled('kelas_jabatan')) {
             $query->where('kelas_jabatan', $request->kelas_jabatan);
         }
@@ -53,7 +53,7 @@ class PegawaiController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'jabatan' => 'required|string|max:255',
-            'kelas_jabatan' => 'required|in:Staff,Supervisor,Kepala Seksi,Camat',
+            'kelas_jabatan' => 'required|integer|min:1|max:17', // UPDATE: integer 1-17
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'status' => 'required|in:aktif,nonaktif',
@@ -115,7 +115,7 @@ class PegawaiController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($pegawai->id)],
             'password' => 'nullable|string|min:6|confirmed',
             'jabatan' => 'required|string|max:255',
-            'kelas_jabatan' => 'required|in:Staff,Supervisor,Kepala Seksi,Camat',
+            'kelas_jabatan' => 'required|integer|min:1|max:17', // UPDATE: integer 1-17
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'status' => 'required|in:aktif,nonaktif',
