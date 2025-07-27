@@ -104,11 +104,26 @@ class KriteriaController extends Controller
     public function destroy(Kriteria $kriteria)
     {
         // Cek apakah kriteria digunakan di evaluasi
-        $digunakan = $kriteria->kode && DB::table('evaluasi')
+        $digunakan = DB::table('evaluasi')
             ->where(function ($query) use ($kriteria) {
-                $field = 'c' . substr($kriteria->kode, 1) . '_' . strtolower(str_replace(' ', '_', $kriteria->nama));
-                // Simplified check - in real implementation, check actual usage
-                return true;
+                // Check if this criteria is used in any evaluations
+                switch ($kriteria->kode) {
+                    case 'C1':
+                        $query->whereNotNull('c1_produktivitas');
+                        break;
+                    case 'C2':
+                        $query->whereNotNull('c2_tanggung_jawab');
+                        break;
+                    case 'C3':
+                        $query->whereNotNull('c3_kehadiran');
+                        break;
+                    case 'C4':
+                        $query->whereNotNull('c4_pelanggaran');
+                        break;
+                    case 'C5':
+                        $query->whereNotNull('c5_terlambat');
+                        break;
+                }
             })
             ->exists();
 
@@ -134,7 +149,10 @@ class KriteriaController extends Controller
             $totalBobotSetelah = $totalBobotLain + $kriteria->bobot;
 
             if ($totalBobotSetelah > 1.001) {
-                return back()->with('error', 'Tidak dapat mengaktifkan kriteria karena total bobot akan melebihi 100%.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengaktifkan kriteria karena total bobot akan melebihi 100%.'
+                ]);
             }
         }
 
@@ -142,57 +160,70 @@ class KriteriaController extends Controller
 
         $message = $newStatus === 'aktif' ? 'Kriteria berhasil diaktifkan.' : 'Kriteria berhasil dinonaktifkan.';
 
-        return back()->with('success', $message);
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
     }
 
     public function resetToDefault()
     {
-        // Reset ke kriteria default (C1-C5) sesuai seeder
-        Kriteria::truncate();
+        try {
+            DB::beginTransaction();
 
-        $defaultKriteria = [
-            [
-                'kode' => 'C1',
-                'nama' => 'Produktivitas Kerja',
-                'bobot' => 0.40,
-                'tren' => 'positif',
-                'status' => 'aktif',
-            ],
-            [
-                'kode' => 'C2',
-                'nama' => 'Tanggung Jawab',
-                'bobot' => 0.20,
-                'tren' => 'positif',
-                'status' => 'aktif',
-            ],
-            [
-                'kode' => 'C3',
-                'nama' => 'Kehadiran',
-                'bobot' => 0.20,
-                'tren' => 'positif',
-                'status' => 'aktif',
-            ],
-            [
-                'kode' => 'C4',
-                'nama' => 'Pelanggaran Disiplin',
-                'bobot' => 0.10,
-                'tren' => 'negatif',
-                'status' => 'aktif',
-            ],
-            [
-                'kode' => 'C5',
-                'nama' => 'Terlambat',
-                'bobot' => 0.10,
-                'tren' => 'negatif',
-                'status' => 'aktif',
-            ],
-        ];
+            // Reset ke kriteria default (C1-C5) sesuai seeder
+            Kriteria::truncate();
 
-        foreach ($defaultKriteria as $kriteria) {
-            Kriteria::create($kriteria);
+            $defaultKriteria = [
+                [
+                    'kode' => 'C1',
+                    'nama' => 'Produktivitas Kerja',
+                    'bobot' => 0.40,
+                    'tren' => 'positif',
+                    'status' => 'aktif',
+                ],
+                [
+                    'kode' => 'C2',
+                    'nama' => 'Tanggung Jawab',
+                    'bobot' => 0.20,
+                    'tren' => 'positif',
+                    'status' => 'aktif',
+                ],
+                [
+                    'kode' => 'C3',
+                    'nama' => 'Kehadiran',
+                    'bobot' => 0.20,
+                    'tren' => 'positif',
+                    'status' => 'aktif',
+                ],
+                [
+                    'kode' => 'C4',
+                    'nama' => 'Pelanggaran Disiplin',
+                    'bobot' => 0.10,
+                    'tren' => 'negatif',
+                    'status' => 'aktif',
+                ],
+                [
+                    'kode' => 'C5',
+                    'nama' => 'Terlambat',
+                    'bobot' => 0.10,
+                    'tren' => 'negatif',
+                    'status' => 'aktif',
+                ],
+            ];
+
+            foreach ($defaultKriteria as $kriteria) {
+                Kriteria::create($kriteria);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.kriteria.index')
+                ->with('success', 'Kriteria berhasil direset ke pengaturan default.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.kriteria.index')
+                ->with('error', 'Terjadi kesalahan saat mereset kriteria.');
         }
-
-        return redirect()->route('admin.kriteria.index')
-            ->with('success', 'Kriteria berhasil direset ke pengaturan default.');
     }
 }
