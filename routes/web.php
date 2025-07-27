@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EvaluasiController as AdminEvaluasiController;
 use App\Http\Controllers\Admin\HasilController as AdminHasilController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\KriteriaController as AdminKriteriaController;
+use App\Http\Controllers\Admin\PeriodeController as AdminPeriodeController; // Tambahkan import ini
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\Pegawai\EvaluasiController as PegawaiEvaluasiController;
 use App\Http\Controllers\Pegawai\HistoryController as PegawaiHistoryController;
@@ -68,9 +69,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Kriteria & Setting
     Route::resource('kriteria', AdminKriteriaController::class);
     Route::post('/kriteria/{kriteria}/toggle-status', [AdminKriteriaController::class, 'toggleStatus'])->name('kriteria.toggle-status');
+    Route::post('/kriteria/reset-default', [AdminKriteriaController::class, 'resetToDefault'])->name('kriteria.reset-default');
 
-    // Periode Evaluasi
+    // Periode Evaluasi - TAMBAHKAN ROUTE INI
     Route::resource('periode', AdminPeriodeController::class);
+    Route::post('/periode/{periode}/activate', [AdminPeriodeController::class, 'activate'])->name('periode.activate');
+    Route::post('/periode/{periode}/deactivate', [AdminPeriodeController::class, 'deactivate'])->name('periode.deactivate');
+    Route::post('/periode/{periode}/finish', [AdminPeriodeController::class, 'finish'])->name('periode.finish');
+    Route::post('/periode/{periode}/duplicate', [AdminPeriodeController::class, 'duplicate'])->name('periode.duplicate');
 });
 
 // Pegawai Routes
