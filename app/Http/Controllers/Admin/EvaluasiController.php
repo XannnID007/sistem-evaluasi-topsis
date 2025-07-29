@@ -202,54 +202,108 @@ class EvaluasiController extends Controller
         // Ambil kriteria dan bobot
         $kriteria = Kriteria::where('status', 'aktif')->get()->keyBy('kode');
 
-        // Hitung nilai minimum untuk transformasi
-        $minValues = [
-            'c1' => $evaluasiList->min('c1_produktivitas'),
-            'c2' => $evaluasiList->min('c2_tanggung_jawab'),
-            'c3' => $evaluasiList->min('c3_kehadiran'),
-            'c4' => $evaluasiList->max('c4_pelanggaran'), // Max untuk kriteria negatif
-            'c5' => $evaluasiList->max('c5_terlambat'),   // Max untuk kriteria negatif
+        // Langkah 1: Konversi nilai text ke numerik berdasarkan mapping Excel
+        $nilaiMapping = [
+            // C1 - Produktivitas Kerja
+            'Sangat produktivitas, selalu melebihi target' => 5,
+            'Produktif, sering memenuhi target kerja' => 4,
+            'Cukup Produktif, kadang memenuhi target' => 3,
+            'Kurang Produktif, sering tidak memenuhi target' => 2,
+            'Tidak Produktif, hampir selalu tidak memenuhi target' => 1,
+
+            // C2 - Tanggung Jawab
+            'Sangat bertanggung jawab, tidak pernah lalai' => 5,
+            'Bertanggung jawab, sangat jarang lalai' => 4,
+            'Cukup bertanggung jawab, kadang lalai' => 3,
+            'Kurang bertanggung jawab, sering lalai' => 2,
+            'Tidak bertanggung jawab, selalu lalai' => 1,
+
+            // C3 - Kehadiran
+            'Hadir 100% (tidak pernah absen)' => 5,
+            'Absen 1-2 kali' => 4,
+            'Absen 3-4 kali' => 3,
+            'Absen 5-6 kali' => 2,
+            'Absen lebih dari 6 kali' => 1,
+
+            // C4 - Pelanggaran Disiplin (nilai negatif)
+            'Tidak pernah melanggar' => 5, // Semakin tinggi nilai semakin baik
+            '1 kali pelanggaran ringan' => 4,
+            '2-3 kali pelanggaran ringan' => 3,
+            '1 kali pelanggaran sedang' => 2,
+            'Lebih dari 1 kali pelanggaran berat' => 1,
+
+            // C5 - Terlambat (nilai negatif)
+            'Tidak pernah terlambat' => 5, // Semakin tinggi nilai semakin baik
+            '1-2 kali terlambat' => 4,
+            '3-4 kali terlambat' => 3,
+            '5-6 kali terlambat' => 2,
+            'Lebih dari 6 kali terlambat' => 1
         ];
 
-        // Hitung CPI untuk setiap evaluasi
+        // Konversi data evaluasi ke nilai numerik
+        foreach ($evaluasiList as $evaluasi) {
+            // Untuk sistem yang menggunakan nilai numerik langsung, tidak perlu konversi
+            // Namun nilai harus dalam skala 1-5 untuk konsistensi dengan Excel
+
+            // Pastikan nilai dalam range yang benar
+            $evaluasi->c1_produktivitas = max(1, min(5, $evaluasi->c1_produktivitas));
+            $evaluasi->c2_tanggung_jawab = max(1, min(5, $evaluasi->c2_tanggung_jawab));
+            $evaluasi->c3_kehadiran = max(1, min(5, $evaluasi->c3_kehadiran));
+            $evaluasi->c4_pelanggaran = max(1, min(5, $evaluasi->c4_pelanggaran));
+            $evaluasi->c5_terlambat = max(1, min(5, $evaluasi->c5_terlambat));
+        }
+
+        // Langkah 2: Hitung nilai minimum untuk transformasi (sesuai metode Excel)
+        $minValues = [
+            'c1' => $evaluasiList->min('c1_produktivitas'), // Untuk tren positif: gunakan min
+            'c2' => $evaluasiList->min('c2_tanggung_jawab'), // Untuk tren positif: gunakan min
+            'c3' => $evaluasiList->min('c3_kehadiran'),     // Untuk tren positif: gunakan min
+            'c4' => $evaluasiList->min('c4_pelanggaran'),   // Untuk tren negatif: gunakan min dari nilai yang sudah dinormalisasi
+            'c5' => $evaluasiList->min('c5_terlambat'),     // Untuk tren negatif: gunakan min dari nilai yang sudah dinormalisasi
+        ];
+
+        // Langkah 3: Hitung CPI untuk setiap evaluasi (sesuai formula Excel)
         foreach ($evaluasiList as $evaluasi) {
             $totalSkor = 0;
 
-            // C1 - Produktivitas Kerja (Positif)
+            // C1 - Produktivitas Kerja (Tren Positif)
             if ($kriteria->has('C1') && $minValues['c1'] > 0) {
-                $normalized = ($evaluasi->c1_produktivitas / $minValues['c1']) * 100;
-                $totalSkor += $normalized * $kriteria['C1']->bobot;
+                // Formula Excel: (Nilai Alternatif / Nilai Min) * 100
+                $normalized_c1 = ($evaluasi->c1_produktivitas / $minValues['c1']) * 100;
+                // Kalikan dengan bobot kriteria
+                $totalSkor += $normalized_c1 * $kriteria['C1']->bobot;
             }
 
-            // C2 - Tanggung Jawab (Positif)
+            // C2 - Tanggung Jawab (Tren Positif)
             if ($kriteria->has('C2') && $minValues['c2'] > 0) {
-                $normalized = ($evaluasi->c2_tanggung_jawab / $minValues['c2']) * 100;
-                $totalSkor += $normalized * $kriteria['C2']->bobot;
+                $normalized_c2 = ($evaluasi->c2_tanggung_jawab / $minValues['c2']) * 100;
+                $totalSkor += $normalized_c2 * $kriteria['C2']->bobot;
             }
 
-            // C3 - Kehadiran (Positif)
+            // C3 - Kehadiran (Tren Positif)
             if ($kriteria->has('C3') && $minValues['c3'] > 0) {
-                $normalized = ($evaluasi->c3_kehadiran / $minValues['c3']) * 100;
-                $totalSkor += $normalized * $kriteria['C3']->bobot;
+                $normalized_c3 = ($evaluasi->c3_kehadiran / $minValues['c3']) * 100;
+                $totalSkor += $normalized_c3 * $kriteria['C3']->bobot;
             }
 
-            // C4 - Pelanggaran Disiplin (Negatif)
+            // C4 - Pelanggaran Disiplin (Tren Negatif)
             if ($kriteria->has('C4') && $minValues['c4'] > 0) {
-                $normalized = ($minValues['c4'] / max($evaluasi->c4_pelanggaran, 1)) * 100;
-                $totalSkor += $normalized * $kriteria['C4']->bobot;
+                // Untuk tren negatif: (Nilai Min / Nilai Alternatif) * 100
+                $normalized_c4 = ($minValues['c4'] / $evaluasi->c4_pelanggaran) * 100;
+                $totalSkor += $normalized_c4 * $kriteria['C4']->bobot;
             }
 
-            // C5 - Terlambat (Negatif)
+            // C5 - Terlambat (Tren Negatif)
             if ($kriteria->has('C5') && $minValues['c5'] > 0) {
-                $normalized = ($minValues['c5'] / max($evaluasi->c5_terlambat, 1)) * 100;
-                $totalSkor += $normalized * $kriteria['C5']->bobot;
+                $normalized_c5 = ($minValues['c5'] / $evaluasi->c5_terlambat) * 100;
+                $totalSkor += $normalized_c5 * $kriteria['C5']->bobot;
             }
 
             // Update total skor
             $evaluasi->update(['total_skor' => round($totalSkor, 5)]);
         }
 
-        // Hitung ranking berdasarkan total skor
+        // Langkah 4: Hitung ranking berdasarkan total skor (dari tertinggi ke terendah)
         $evaluasiSorted = Evaluasi::where('periode_id', $periodeId)
             ->orderBy('total_skor', 'desc')
             ->get();
