@@ -43,26 +43,24 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-lg bg-success-100">
-                        @php
-                            $trendIcon = match ($trendSkor) {
-                                'naik' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-                                'turun' => 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6',
-                                default => 'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-                            };
-                            $trendColor = match ($trendSkor) {
-                                'naik' => 'success',
-                                'turun' => 'danger',
-                                default => 'secondary',
-                            };
-                        @endphp
-                        <div class="p-3 rounded-lg bg-{{ $trendColor }}-100">
-                            <svg class="h-6 w-6 text-{{ $trendColor }}-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="{{ $trendIcon }}"></path>
-                            </svg>
-                        </div>
+                    @php
+                        $trendIcon = match ($trendSkor) {
+                            'naik' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                            'turun' => 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6',
+                            default => 'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        };
+                        $trendColor = match ($trendSkor) {
+                            'naik' => 'success',
+                            'turun' => 'danger',
+                            default => 'secondary',
+                        };
+                    @endphp
+                    <div class="p-3 rounded-lg bg-{{ $trendColor }}-100">
+                        <svg class="h-6 w-6 text-{{ $trendColor }}-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $trendIcon }}">
+                            </path>
+                        </svg>
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tren Skor</p>
@@ -324,19 +322,23 @@
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script>
-            @if ($historyList->count() > 1)
-                document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                @if ($historyList->count() > 1)
                     const ctx = document.getElementById('performanceHistoryChart').getContext('2d');
 
-                    const historyData = @json(
-                        $historyList->map(function ($eval) {
-                                return [
-                                    'period' => $eval->periode->nama,
-                                    'score' => $eval->total_skor,
-                                    'ranking' => $eval->ranking,
-                                    'date' => $eval->created_at->format('M Y'),
-                                ];
-                            })->reverse()->values());
+                    // Prepare data safely
+                    const historyData = [];
+                    @foreach ($historyList as $eval)
+                        historyData.push({
+                            period: "{{ $eval->periode->nama }}",
+                            score: {{ $eval->total_skor ?? 0 }},
+                            ranking: {{ $eval->ranking ?? 0 }},
+                            date: "{{ $eval->created_at->format('M Y') }}"
+                        });
+                    @endforeach
+
+                    // Sort by date (reverse to show chronological order)
+                    historyData.reverse();
 
                     new Chart(ctx, {
                         type: 'line',
@@ -444,11 +446,28 @@
                             }
                         }
                     });
-                });
-            @endif
+                @endif
+            });
 
             function downloadEvaluasi(evaluasiId) {
-                window.location.href = `/pegawai/evaluasi/${evaluasiId}/download`;
+                // Show loading state
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Downloading...';
+                button.disabled = true;
+
+                // Simulate download
+                setTimeout(() => {
+                    // In real implementation, this would be:
+                    // window.location.href = `/pegawai/evaluasi/${evaluasiId}/download`;
+
+                    // For now, just show alert
+                    alert('Fitur download PDF akan segera tersedia!');
+
+                    // Reset button state
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 1000);
             }
         </script>
     @endpush

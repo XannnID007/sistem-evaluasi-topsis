@@ -259,18 +259,22 @@
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script>
-            @if (isset($evaluasiList) && $evaluasiList->count() > 1)
-                document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (isset($evaluasiList) && $evaluasiList->count() > 1)
                     const ctx = document.getElementById('performanceTrendChart').getContext('2d');
 
-                    const trendData = @json(
-                        $evaluasiList->map(function ($eval) {
-                                return [
-                                    'period' => $eval->periode->nama,
-                                    'score' => $eval->total_skor,
-                                    'ranking' => $eval->ranking,
-                                ];
-                            })->reverse()->values());
+                    // Prepare data safely
+                    const trendData = [];
+                    @foreach ($evaluasiList as $eval)
+                        trendData.push({
+                            period: "{{ $eval->periode->nama }}",
+                            score: {{ $eval->total_skor ?? 0 }},
+                            ranking: {{ $eval->ranking ?? 0 }}
+                        });
+                    @endforeach
+
+                    // Sort by date (reverse to show chronological order)
+                    trendData.reverse();
 
                     new Chart(ctx, {
                         type: 'line',
@@ -339,8 +343,8 @@
                             }
                         }
                     });
-                });
-            @endif
+                @endif
+            });
 
             function downloadEvaluasi(evaluasiId) {
                 // Show loading state
