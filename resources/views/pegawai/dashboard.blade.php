@@ -9,8 +9,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-2xl font-bold">Selamat datang, {{ auth()->user()->nama }}!</h2>
-                    <p class="text-primary-100 mt-2">{{ auth()->user()->jabatan }} - {{ auth()->user()->kelas_jabatan }}</p>
-                    <p class="text-primary-200 text-sm mt-1">Lihat perkembangan kinerja Anda</p>
+                    <p class="text-primary-100 mt-2">{{ auth()->user()->jabatan }}</p>
+                    <p class="text-primary-200 text-sm mt-1">{{ auth()->user()->getKelasJabatanText() }}</p>
+                    <p class="text-primary-200 text-sm">Lihat perkembangan kinerja Anda</p>
                 </div>
                 <div class="hidden md:block">
                     <div class="h-16 w-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -111,7 +112,9 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Evaluasi Per Kriteria</h3>
-                    <span class="text-sm text-gray-500">Periode: {{ $periodeAktif ?? 'Juni 2025' }}</span>
+                    <span class="text-sm text-gray-500">
+                        Periode: {{ $periodeAktif ? $periodeAktif->nama : 'Tidak Ada Periode Aktif' }}
+                    </span>
                 </div>
 
                 @if ($evaluasiTerbaru)
@@ -186,8 +189,8 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-bold text-warning-700">
-                                    {{ number_format($evaluasiTerbaru->c4_pelanggaran ?? 0, 0) }}</p>
+                                <p class="text-lg font-bold text-warning-700">{{ $evaluasiTerbaru->c4_pelanggaran ?? 0 }}
+                                </p>
                                 <p class="text-xs text-gray-600">kali</p>
                             </div>
                         </div>
@@ -202,8 +205,7 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-bold text-danger-700">
-                                    {{ number_format($evaluasiTerbaru->c5_terlambat ?? 0, 0) }}</p>
+                                <p class="text-lg font-bold text-danger-700">{{ $evaluasiTerbaru->c5_terlambat ?? 0 }}</p>
                                 <p class="text-xs text-gray-600">kali</p>
                             </div>
                         </div>
@@ -360,6 +362,26 @@
                 // Performance Trend Chart
                 const ctx = document.getElementById('performanceTrendChart').getContext('2d');
 
+                // Data tren dari server
+                const trendData = @json($trendData ?? []);
+
+                // Jika tidak ada data, tampilkan chart kosong dengan pesan
+                if (!trendData || trendData.length === 0) {
+                    ctx.canvas.style.display = 'none';
+                    const container = ctx.canvas.parentElement;
+                    container.innerHTML = `
+                        <div class="flex items-center justify-center h-64">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <p class="mt-2 text-gray-500">Belum ada data untuk ditampilkan</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
                 new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -430,6 +452,14 @@
                     }
                 });
             });
+
+            function downloadReport() {
+                @if ($evaluasiTerbaru)
+                    window.location.href = '{{ route('pegawai.evaluasi.download', $evaluasiTerbaru->id) }}';
+                @else
+                    alert('Belum ada evaluasi untuk didownload');
+                @endif
+            }
         </script>
     @endpush
 @endsection

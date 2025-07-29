@@ -25,7 +25,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Total Evaluasi</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $totalEvaluasi }}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $totalEvaluasi ?? 0 }}</p>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Rata-rata Skor</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ number_format($rataSkor, 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ number_format($rataSkor ?? 0, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Ranking Terbaik</p>
-                        <p class="text-2xl font-bold text-gray-900">#{{ $rankingTerbaik ?: '-' }}</p>
+                        <p class="text-2xl font-bold text-gray-900">#{{ $rankingTerbaik ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Skor Tertinggi</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ number_format($skorTertinggi, 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ number_format($skorTertinggi ?? 0, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -246,7 +246,7 @@
         </div>
 
         <!-- Performance Overview -->
-        @if ($evaluasiList->count() > 1)
+        @if (isset($evaluasiList) && $evaluasiList->count() > 1)
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-6">Tren Kinerja Saya</h3>
                 <div class="h-64">
@@ -259,7 +259,7 @@
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script>
-            @if ($evaluasiList->count() > 1)
+            @if (isset($evaluasiList) && $evaluasiList->count() > 1)
                 document.addEventListener('DOMContentLoaded', function() {
                     const ctx = document.getElementById('performanceTrendChart').getContext('2d');
 
@@ -344,22 +344,23 @@
 
             function downloadEvaluasi(evaluasiId) {
                 // Show loading state
-                event.target.innerHTML = 'Downloading...';
-                event.target.disabled = true;
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Downloading...';
+                button.disabled = true;
 
-                // Create download link
-                const link = document.createElement('a');
-                link.href = `/pegawai/evaluasi/${evaluasiId}/download`;
-                link.download = '';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // Reset button state
+                // Simulate download
                 setTimeout(() => {
-                    event.target.innerHTML = 'Download PDF';
-                    event.target.disabled = false;
-                }, 2000);
+                    // In real implementation, this would be:
+                    // window.location.href = `/pegawai/evaluasi/${evaluasiId}/download`;
+
+                    // For now, just show alert
+                    alert('Fitur download PDF akan segera tersedia!');
+
+                    // Reset button state
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 1000);
             }
         </script>
     @endpush

@@ -51,13 +51,13 @@ class EvaluasiController extends Controller
         // Bandingkan dengan rata-rata periode
         $avgPeriode = Evaluasi::where('periode_id', $evaluasi->periode_id)
             ->selectRaw('
-                                 AVG(c1_produktivitas) as avg_c1,
-                                 AVG(c2_tanggung_jawab) as avg_c2,
-                                 AVG(c3_kehadiran) as avg_c3,
-                                 AVG(c4_pelanggaran) as avg_c4,
-                                 AVG(c5_terlambat) as avg_c5,
-                                 AVG(total_skor) as avg_total
-                             ')
+                AVG(c1_produktivitas) as avg_c1,
+                AVG(c2_tanggung_jawab) as avg_c2,
+                AVG(c3_kehadiran) as avg_c3,
+                AVG(c4_pelanggaran) as avg_c4,
+                AVG(c5_terlambat) as avg_c5,
+                AVG(total_skor) as avg_total
+            ')
             ->first();
 
         // Posisi dalam periode
@@ -84,10 +84,12 @@ class EvaluasiController extends Controller
 
         // Generate PDF report untuk pegawai
         // Implementasi akan menggunakan library PDF
+        // Untuk sekarang, return response JSON sebagai placeholder
 
         return response()->json([
             'message' => 'PDF download will be implemented',
-            'evaluasi_id' => $evaluasi->id
+            'evaluasi_id' => $evaluasi->id,
+            'filename' => "Evaluasi_{$evaluasi->user->nama}_{$evaluasi->periode->nama}.pdf"
         ]);
     }
 }
