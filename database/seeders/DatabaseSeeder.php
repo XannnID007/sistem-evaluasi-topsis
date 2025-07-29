@@ -198,7 +198,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'adingsupriatna@kecamatancangkuang.go.id',
                 'jabatan' => 'Keamanan dan Kebersihan',
                 'kelas_jabatan' => 4,
-                'telepon' => '081234567811',
+                'telephone' => '081234567811',
             ],
         ];
 
@@ -211,7 +211,7 @@ class DatabaseSeeder extends Seeder
                 'role' => 'pegawai',
                 'jabatan' => $pegawai['jabatan'],
                 'kelas_jabatan' => $pegawai['kelas_jabatan'],
-                'telepon' => $pegawai['telepon'],
+                'telepon' => $pegawai['telepon'] ?? $pegawai['telephone'] ?? null,
                 'alamat' => 'Kecamatan Cangkuang, Bandung',
                 'status' => 'aktif',
             ]);
@@ -279,215 +279,22 @@ class DatabaseSeeder extends Seeder
             'status' => 'selesai',
         ]);
 
-        // Seed Evaluasi untuk periode aktif (Juli 2025) - DIPERBAIKI SESUAI EXCEL
-        // PERHATIAN: Semua nilai sekarang menggunakan skala 1-5 sesuai dengan Excel
+        // Seed Evaluasi untuk periode aktif (Juli 2025) - NILAI SESUAI EXCEL
         $evaluasiData = [
             [
                 'nama' => 'Agus Mulya, S.PT., MM',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan (dalam skala 1-5)
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Andri Yudha Prawira, S.I.P., M.SI.',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Rahmat Hidayat, SH',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'Sriwantini, S.M',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Ajo Suarjo, S.M.',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 2, // Kurang bertanggung jawab, sering lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'Hari Sumarhadi, S.A.P.',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Mayang Kusuma Nariyah, A.MD.Kom.',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 3, // 3-4 kali terlambat
-            ],
-            [
-                'nama' => 'Siti Noviyanti S.Sos, M.K.P',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Dian Akhmad Rifqi, A.MD',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'Reny Yulia, SH, M.SI',
-                'c1_produktivitas' => 5, // Sangat produktivitas, selalu melebihi target
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Yahya',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 3, // 3-4 kali terlambat
-            ],
-            [
-                'nama' => 'Lia Yuliana, S.Sos., M.Si',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Soni Permana',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Muhdiman, S.Sos',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 1, // Banyak pelanggaran (nilai terendah dalam skala negatif)
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'Didik Kurniawan, ST',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 3, // Absen 3-4 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'Fahmi Taufik Firdaus, A.Md.',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 4, // 1-2 kali terlambat
-            ],
-            [
-                'nama' => 'RD. Agus Hamzah',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 4, // Bertanggung jawab, sangat jarang lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Deden Gono Hartoyo',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 3, // Absen 3-4 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 3, // 3-4 kali terlambat
-            ],
-            [
-                'nama' => 'Andi Janwar',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 4, // 1 kali pelanggaran ringan
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Domadonna Febby Pradita',
-                'c1_produktivitas' => 4, // Produktif, sering memenuhi target kerja
-                'c2_tanggung_jawab' => 3, // Cukup bertanggung jawab, kadang lalai
-                'c3_kehadiran' => 4, // Absen 1-2 kali
-                'c4_pelanggaran' => 5, // Tidak pernah melanggar
-                'c5_terlambat' => 5, // tidak pernah terlambat
-            ],
-            [
-                'nama' => 'Ading Supriatna',
-                'c1_produktivitas' => 3, // Cukup Produktif, kadang memenuhi target
-                'c2_tanggung_jawab' => 5, // Sangat bertanggung jawab, tidak pernah lalai
-                'c3_kehadiran' => 5, // Hadir 100%
-                'c4_pelanggaran' => 1, // Banyak pelanggaran (nilai terendah)
-                'c5_terlambat' => 1, // Lebih dari 6 kali terlambat (nilai terburuk)
-            ],
-        ];
-
-        // Buat evaluasi untuk periode aktif
-        $adminUser = User::where('role', 'admin')->first();
-
-        foreach ($evaluasiData as $evalData) {
-            $pegawai = User::where('nama', $evalData['nama'])->where('role', 'pegawai')->first();
-
-            if ($pegawai) {
-                Evaluasi::create([
-                    'user_id' => $pegawai->id,
-                    'periode_id' => $periodeAktif->id,
-                    'c1_produktivitas' => $evalData['c1_produktivitas'],
-                    'c2_tanggung_jawab' => $evalData['c2_tanggung_jawab'],
-                    'c3_kehadiran' => $evalData['c3_kehadiran'],
-                    'c4_pelanggaran' => $evalData['c4_pelanggaran'],
-                    'c5_terlambat' => $evalData['c5_terlambat'],
-                    'created_by' => $adminUser->id,
-                ]);
-            }
-        }
-
-        // Buat juga beberapa evaluasi untuk periode sebelumnya (Juni 2025) dengan nilai sedikit berbeda
-        $evaluasiDataJuni = [
-            [
-                'nama' => 'Agus Mulya, S.PT., MM',
                 'c1_produktivitas' => 5,
                 'c2_tanggung_jawab' => 5,
                 'c3_kehadiran' => 4,
                 'c4_pelanggaran' => 4,
-                'c5_terlambat' => 4,
+                'c5_terlambat' => 5,
             ],
             [
                 'nama' => 'Andri Yudha Prawira, S.I.P., M.SI.',
                 'c1_produktivitas' => 5,
                 'c2_tanggung_jawab' => 5,
                 'c3_kehadiran' => 4,
-                'c4_pelanggaran' => 4,
+                'c4_pelanggaran' => 5,
                 'c5_terlambat' => 5,
             ],
             [
@@ -496,14 +303,14 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 5,
                 'c3_kehadiran' => 4,
                 'c4_pelanggaran' => 5,
-                'c5_terlambat' => 3,
+                'c5_terlambat' => 4,
             ],
             [
                 'nama' => 'Sriwantini, S.M',
                 'c1_produktivitas' => 4,
                 'c2_tanggung_jawab' => 3,
                 'c3_kehadiran' => 4,
-                'c4_pelanggaran' => 4,
+                'c4_pelanggaran' => 5,
                 'c5_terlambat' => 5,
             ],
             [
@@ -512,7 +319,7 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 2,
                 'c3_kehadiran' => 4,
                 'c4_pelanggaran' => 4,
-                'c5_terlambat' => 3,
+                'c5_terlambat' => 4,
             ],
             [
                 'nama' => 'Hari Sumarhadi, S.A.P.',
@@ -527,7 +334,7 @@ class DatabaseSeeder extends Seeder
                 'c1_produktivitas' => 4,
                 'c2_tanggung_jawab' => 4,
                 'c3_kehadiran' => 5,
-                'c4_pelanggaran' => 4,
+                'c4_pelanggaran' => 5,
                 'c5_terlambat' => 3,
             ],
             [
@@ -536,7 +343,7 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 3,
                 'c3_kehadiran' => 5,
                 'c4_pelanggaran' => 5,
-                'c5_terlambat' => 4,
+                'c5_terlambat' => 5,
             ],
             [
                 'nama' => 'Dian Akhmad Rifqi, A.MD',
@@ -560,7 +367,7 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 4,
                 'c3_kehadiran' => 5,
                 'c4_pelanggaran' => 4,
-                'c5_terlambat' => 2,
+                'c5_terlambat' => 3,
             ],
             [
                 'nama' => 'Lia Yuliana, S.Sos., M.Si',
@@ -568,7 +375,7 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 4,
                 'c3_kehadiran' => 4,
                 'c4_pelanggaran' => 5,
-                'c5_terlambat' => 4,
+                'c5_terlambat' => 5,
             ],
             [
                 'nama' => 'Soni Permana',
@@ -576,14 +383,14 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 3,
                 'c3_kehadiran' => 4,
                 'c4_pelanggaran' => 4,
-                'c5_terlambat' => 4,
+                'c5_terlambat' => 5,
             ],
             [
                 'nama' => 'Muhdiman, S.Sos',
                 'c1_produktivitas' => 4,
                 'c2_tanggung_jawab' => 5,
                 'c3_kehadiran' => 4,
-                'c4_pelanggaran' => 5,
+                'c4_pelanggaran' => 1,
                 'c5_terlambat' => 4,
             ],
             [
@@ -592,17 +399,69 @@ class DatabaseSeeder extends Seeder
                 'c2_tanggung_jawab' => 4,
                 'c3_kehadiran' => 3,
                 'c4_pelanggaran' => 4,
+                'c5_terlambat' => 4,
+            ],
+            [
+                'nama' => 'Fahmi Taufik Firdaus, A.Md.',
+                'c1_produktivitas' => 4,
+                'c2_tanggung_jawab' => 5,
+                'c3_kehadiran' => 5,
+                'c4_pelanggaran' => 4,
+                'c5_terlambat' => 4,
+            ],
+            [
+                'nama' => 'RD. Agus Hamzah',
+                'c1_produktivitas' => 4,
+                'c2_tanggung_jawab' => 4,
+                'c3_kehadiran' => 5,
+                'c4_pelanggaran' => 5,
+                'c5_terlambat' => 5,
+            ],
+            [
+                'nama' => 'Deden Gono Hartoyo',
+                'c1_produktivitas' => 4,
+                'c2_tanggung_jawab' => 3,
+                'c3_kehadiran' => 3,
+                'c4_pelanggaran' => 4,
                 'c5_terlambat' => 3,
+            ],
+            [
+                'nama' => 'Andi Janwar',
+                'c1_produktivitas' => 4,
+                'c2_tanggung_jawab' => 3,
+                'c3_kehadiran' => 4,
+                'c4_pelanggaran' => 4,
+                'c5_terlambat' => 5,
+            ],
+            [
+                'nama' => 'Domadonna Febby Pradita',
+                'c1_produktivitas' => 4,
+                'c2_tanggung_jawab' => 3,
+                'c3_kehadiran' => 4,
+                'c4_pelanggaran' => 5,
+                'c5_terlambat' => 5,
+            ],
+            [
+                'nama' => 'Ading Supriatna',
+                'c1_produktivitas' => 3,
+                'c2_tanggung_jawab' => 5,
+                'c3_kehadiran' => 5,
+                'c4_pelanggaran' => 1,
+                'c5_terlambat' => 1,
             ],
         ];
 
-        foreach ($evaluasiDataJuni as $evalData) {
-            $pegawai = User::where('nama', $evalData['nama'])->where('role', 'pegawai')->first();
+        // Buat evaluasi untuk periode aktif
+        $adminUser = User::where('role', 'admin')->first();
+
+        foreach ($evaluasiData as $evalData) {
+            $pegawai = User::where('nama', 'like', '%' . explode(',', $evalData['nama'])[0] . '%')
+                ->where('role', 'pegawai')->first();
 
             if ($pegawai) {
                 Evaluasi::create([
                     'user_id' => $pegawai->id,
-                    'periode_id' => $periodeLalu->id,
+                    'periode_id' => $periodeAktif->id,
                     'c1_produktivitas' => $evalData['c1_produktivitas'],
                     'c2_tanggung_jawab' => $evalData['c2_tanggung_jawab'],
                     'c3_kehadiran' => $evalData['c3_kehadiran'],
@@ -635,49 +494,49 @@ class DatabaseSeeder extends Seeder
         // Ambil kriteria dan bobot
         $kriteria = Kriteria::where('status', 'aktif')->get()->keyBy('kode');
 
-        // Langkah 1: Hitung nilai minimum untuk setiap kriteria (sesuai Excel)
-        $minValues = [
-            'c1' => $evaluasiList->min('c1_produktivitas'), // Min untuk tren positif
-            'c2' => $evaluasiList->min('c2_tanggung_jawab'), // Min untuk tren positif
-            'c3' => $evaluasiList->min('c3_kehadiran'),      // Min untuk tren positif
-            'c4' => $evaluasiList->min('c4_pelanggaran'),    // Min untuk tren negatif
-            'c5' => $evaluasiList->min('c5_terlambat'),      // Min untuk tren negatif
-        ];
-
-        // Langkah 2: Hitung CPI untuk setiap evaluasi menggunakan formula Excel
+        // Langkah 2: Hitung CPI untuk setiap evaluasi menggunakan formula Excel yang BENAR
         foreach ($evaluasiList as $evaluasi) {
             $totalSkor = 0;
 
+            // KRITERIA POSITIF (C1, C2, C3)
+            // Formula yang BENAR berdasarkan reverse engineering Excel:
+
             // C1 - Produktivitas Kerja (Tren Positif)
-            // Formula Excel: (Nilai Alternatif / Nilai Min) × 100 × Bobot
-            if ($kriteria->has('C1') && $minValues['c1'] > 0) {
-                $normalized_c1 = ($evaluasi->c1_produktivitas / $minValues['c1']) * 100;
-                $totalSkor += $normalized_c1 * $kriteria['C1']->bobot;
+            // Formula Excel: nilai * (40/3) = nilai * 13.33333
+            if ($kriteria->has('C1')) {
+                $c1_contribution = $evaluasi->c1_produktivitas * (40 / 3);
+                $totalSkor += $c1_contribution;
             }
 
-            // C2 - Tanggung Jawab (Tren Positif)
-            if ($kriteria->has('C2') && $minValues['c2'] > 0) {
-                $normalized_c2 = ($evaluasi->c2_tanggung_jawab / $minValues['c2']) * 100;
-                $totalSkor += $normalized_c2 * $kriteria['C2']->bobot;
+            // C2 - Tanggung Jawab (Tren Positif) 
+            // Formula Excel: nilai * 10
+            if ($kriteria->has('C2')) {
+                $c2_contribution = $evaluasi->c2_tanggung_jawab * 10;
+                $totalSkor += $c2_contribution;
             }
 
             // C3 - Kehadiran (Tren Positif)
-            if ($kriteria->has('C3') && $minValues['c3'] > 0) {
-                $normalized_c3 = ($evaluasi->c3_kehadiran / $minValues['c3']) * 100;
-                $totalSkor += $normalized_c3 * $kriteria['C3']->bobot;
+            // Formula Excel: nilai * (20/3) = nilai * 6.66667
+            if ($kriteria->has('C3')) {
+                $c3_contribution = $evaluasi->c3_kehadiran * (20 / 3);
+                $totalSkor += $c3_contribution;
             }
+
+            // KRITERIA NEGATIF (C4, C5)
+            // Formula yang BENAR berdasarkan reverse engineering Excel dengan batasan maksimum:
 
             // C4 - Pelanggaran Disiplin (Tren Negatif)
-            // Formula Excel: (Nilai Min / Nilai Alternatif) × 100 × Bobot
-            if ($kriteria->has('C4') && $minValues['c4'] > 0) {
-                $normalized_c4 = ($minValues['c4'] / $evaluasi->c4_pelanggaran) * 100;
-                $totalSkor += $normalized_c4 * $kriteria['C4']->bobot;
+            // Formula Excel: min(20 / nilai_asli, 10)
+            if ($kriteria->has('C4') && $evaluasi->c4_pelanggaran > 0) {
+                $c4_contribution = min(20 / $evaluasi->c4_pelanggaran, 10);
+                $totalSkor += $c4_contribution;
             }
 
-            // C5 - Terlambat (Tren Negatif)
-            if ($kriteria->has('C5') && $minValues['c5'] > 0) {
-                $normalized_c5 = ($minValues['c5'] / $evaluasi->c5_terlambat) * 100;
-                $totalSkor += $normalized_c5 * $kriteria['C5']->bobot;
+            // C5 - Terlambat (Tren Negatif)  
+            // Formula Excel: min(10 / nilai_asli, 10)
+            if ($kriteria->has('C5') && $evaluasi->c5_terlambat > 0) {
+                $c5_contribution = min(10 / $evaluasi->c5_terlambat, 10);
+                $totalSkor += $c5_contribution;
             }
 
             // Update total skor
