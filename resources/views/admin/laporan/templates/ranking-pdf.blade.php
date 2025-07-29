@@ -35,40 +35,6 @@
             font-size: 10px;
         }
         
-        .summary {
-            background-color: #f8f9fa;
-            padding: 12px;
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            text-align: center;
-        }
-        
-        .summary-item {
-            padding: 8px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-        
-        .summary-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-        
-        .summary-label {
-            font-size: 9px;
-            color: #666;
-            margin-top: 3px;
-        }
-        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -118,32 +84,6 @@
         .kategori-cukup { background-color: #d97706; }
         .kategori-kurang { background-color: #dc2626; }
         
-        .distribution {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .dist-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .dist-item {
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
-            color: white;
-        }
-        
-        .dist-sangat-baik { background-color: #16a34a; }
-        .dist-baik { background-color: #2563eb; }
-        .dist-cukup { background-color: #d97706; }
-        .dist-kurang { background-color: #dc2626; }
-        
         .footer {
             margin-top: 25px;
             padding-top: 15px;
@@ -169,40 +109,22 @@
         <p><strong>Periode: {{ $periode->nama }}</strong></p>
     </div>
 
-    <!-- Summary -->
-    <div class="summary">
-        <h3 style="margin-top: 0; margin-bottom: 10px;">Ringkasan Eksekutif</h3>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value">{{ $evaluasi_list->count() }}</div>
-                <div class="summary-label">Total Pegawai</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ number_format($evaluasi_list->avg('total_skor'), 1) }}</div>
-                <div class="summary-label">Rata-rata Skor</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ number_format($evaluasi_list->max('total_skor'), 1) }}</div>
-                <div class="summary-label">Skor Tertinggi</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ number_format($evaluasi_list->min('total_skor'), 1) }}</div>
-                <div class="summary-label">Skor Terendah</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Ranking Table -->
     <h3>Daftar Ranking Kinerja Pegawai</h3>
     <table>
         <thead>
             <tr>
                 <th width="8%">Ranking</th>
-                <th width="28%">Nama Pegawai</th>
-                <th width="25%">Jabatan</th>
-                <th width="10%">Kelas</th>
-                <th width="12%">Total Skor</th>
-                <th width="17%">Kategori</th>
+                <th width="25%">Nama Pegawai</th>
+                <th width="22%">Jabatan</th>
+                <th width="8%">Kelas</th>
+                <th width="6%">C1</th>
+                <th width="6%">C2</th>
+                <th width="6%">C3</th>
+                <th width="5%">C4</th>
+                <th width="5%">C5</th>
+                <th width="9%">Total Skor</th>
+                <th width="10%">Kategori</th>
             </tr>
         </thead>
         <tbody>
@@ -216,6 +138,11 @@
                 <td>{{ $evaluasi->user->nama }}</td>
                 <td>{{ $evaluasi->user->jabatan }}</td>
                 <td class="text-center">{{ $evaluasi->user->getKelasJabatanShort() }}</td>
+                <td class="text-center">{{ number_format($evaluasi->c1_produktivitas, 1) }}</td>
+                <td class="text-center">{{ number_format($evaluasi->c2_tanggung_jawab, 1) }}</td>
+                <td class="text-center">{{ number_format($evaluasi->c3_kehadiran, 1) }}</td>
+                <td class="text-center">{{ $evaluasi->c4_pelanggaran }}</td>
+                <td class="text-center">{{ $evaluasi->c5_terlambat }}</td>
                 <td class="text-center"><strong>{{ number_format($evaluasi->total_skor, 2) }}</strong></td>
                 <td class="text-center">
                     @php
@@ -241,76 +168,6 @@
             @endforeach
         </tbody>
     </table>
-
-    <!-- Distribution Analysis -->
-    <div class="distribution">
-        <h3 style="margin-top: 0;">Distribusi Kinerja</h3>
-        @php
-            $sangat_baik = $evaluasi_list->where('total_skor', '>', 150)->count();
-            $baik = $evaluasi_list->whereBetween('total_skor', [130, 150])->count();
-            $cukup = $evaluasi_list->whereBetween('total_skor', [110, 130])->count();
-            $kurang = $evaluasi_list->where('total_skor', '<', 110)->count();
-            $total = $evaluasi_list->count();
-        @endphp
-        
-        <div class="dist-grid">
-            <div class="dist-item dist-sangat-baik">
-                <div style="font-size: 14px; font-weight: bold;">{{ $sangat_baik }}</div>
-                <div style="font-size: 9px;">Sangat Baik</div>
-                <div style="font-size: 8px;">({{ $total > 0 ? round(($sangat_baik/$total)*100, 1) : 0 }}%)</div>
-            </div>
-            <div class="dist-item dist-baik">
-                <div style="font-size: 14px; font-weight: bold;">{{ $baik }}</div>
-                <div style="font-size: 9px;">Baik</div>
-                <div style="font-size: 8px;">({{ $total > 0 ? round(($baik/$total)*100, 1) : 0 }}%)</div>
-            </div>
-            <div class="dist-item dist-cukup">
-                <div style="font-size: 14px; font-weight: bold;">{{ $cukup }}</div>
-                <div style="font-size: 9px;">Cukup</div>
-                <div style="font-size: 8px;">({{ $total > 0 ? round(($cukup/$total)*100, 1) : 0 }}%)</div>
-            </div>
-            <div class="dist-item dist-kurang">
-                <div style="font-size: 14px; font-weight: bold;">{{ $kurang }}</div>
-                <div style="font-size: 9px;">Kurang</div>
-                <div style="font-size: 8px;">({{ $total > 0 ? round(($kurang/$total)*100, 1) : 0 }}%)</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top 5 Performers -->
-    <div style="margin-top: 20px;">
-        <h3>Top 5 Pegawai Terbaik</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th width="10%">Rank</th>
-                    <th width="35%">Nama</th>
-                    <th width="30%">Jabatan</th>
-                    <th width="15%">Skor</th>
-                    <th width="10%">Gap</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($evaluasi_list->take(5) as $index => $evaluasi)
-                <tr>
-                    <td class="text-center">
-                        <span class="ranking medal">★ #{{ $evaluasi->ranking }}</span>
-                    </td>
-                    <td>{{ $evaluasi->user->nama }}</td>
-                    <td>{{ $evaluasi->user->jabatan }}</td>
-                    <td class="text-center"><strong>{{ number_format($evaluasi->total_skor, 2) }}</strong></td>
-                    <td class="text-center">
-                        @if($index > 0)
-                            {{ number_format($evaluasi_list->first()->total_skor - $evaluasi->total_skor, 2) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
 
     <!-- Footer -->
     <div class="footer">

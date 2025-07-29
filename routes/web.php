@@ -53,18 +53,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/evaluasi/bulk/create', [AdminEvaluasiController::class, 'bulkCreate'])->name('evaluasi.bulk-create');
     Route::post('/evaluasi/bulk/store', [AdminEvaluasiController::class, 'bulkStore'])->name('evaluasi.bulk-store');
 
-    // Hasil & Ranking - PERBAIKAN ROUTING
+    // Hasil & Ranking - SIMPLIFIED (No Export)
     Route::get('/hasil', [AdminHasilController::class, 'index'])->name('hasil.index');
     Route::get('/hasil/comparison', [AdminHasilController::class, 'comparison'])->name('hasil.comparison');
-    Route::get('/hasil/export', [AdminHasilController::class, 'export'])->name('hasil.export');
     Route::get('/hasil/{evaluasi}', [AdminHasilController::class, 'show'])->name('hasil.show');
 
-    // Laporan - PERBAIKAN ROUTING
+    // Laporan - SIMPLIFIED (Only Index and Export)
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/generate', [AdminLaporanController::class, 'generate'])->name('laporan.generate');
-    Route::post('/laporan/generate', [AdminLaporanController::class, 'store'])->name('laporan.store');
-    Route::get('/laporan/{laporan}', [AdminLaporanController::class, 'show'])->name('laporan.show');
-    Route::get('/laporan/{laporan}/download', [AdminLaporanController::class, 'download'])->name('laporan.download');
+    Route::post('/laporan/export', [AdminLaporanController::class, 'export'])->name('laporan.export');
 
     // Kriteria & Setting
     Route::resource('kriteria', AdminKriteriaController::class);

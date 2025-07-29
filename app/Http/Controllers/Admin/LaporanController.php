@@ -19,19 +19,15 @@ class LaporanController extends Controller
         return view('admin.laporan.index', compact('periodeList'));
     }
 
-    public function generate(Request $request)
-    {
-        $periodeList = PeriodeEvaluasi::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
-
-        return view('admin.laporan.generate', compact('periodeList'));
-    }
-
-    public function store(Request $request)
+    public function export(Request $request)
     {
         $validated = $request->validate([
             'periode_id' => 'required|exists:periode_evaluasi,id',
             'jenis_laporan' => 'required|in:ranking,statistik,lengkap',
             'format' => 'required|in:pdf,excel',
+            'include_chart' => 'boolean',
+            'include_summary' => 'boolean',
+            'include_recommendations' => 'boolean',
         ]);
 
         try {
@@ -116,6 +112,7 @@ class LaporanController extends Controller
 
         $data = [
             'periode' => $periode,
+            'evaluasi_list' => $evaluasiList,
             'statistik' => $statistik,
             'include_chart' => $includeChart,
             'generated_at' => now(),
@@ -185,18 +182,6 @@ class LaporanController extends Controller
         } else {
             return Excel::download(new LaporanLengkapExport($data), $filename . '.xlsx');
         }
-    }
-
-    public function show($id)
-    {
-        // Show generated report (placeholder)
-        return view('admin.laporan.show');
-    }
-
-    public function download($id)
-    {
-        // Download previously generated report (placeholder)
-        return response()->json(['message' => 'Download previous report functionality']);
     }
 }
 

@@ -7,19 +7,8 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Laporan Evaluasi Kinerja</h2>
-                <p class="text-gray-600 mt-1">Generate dan kelola laporan evaluasi kinerja pegawai</p>
-            </div>
-            <div class="mt-4 md:mt-0">
-                <a href="{{ route('admin.laporan.generate') }}"
-                    class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
-                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
-                    </svg>
-                    Generate Laporan Baru
-                </a>
+                <h2 class="text-2xl font-bold text-gray-900">Export Laporan Evaluasi Kinerja</h2>
+                <p class="text-gray-600 mt-1">Generate dan download laporan evaluasi kinerja pegawai</p>
             </div>
         </div>
 
@@ -35,18 +24,22 @@
                 </div>
                 <div class="ml-3">
                     <h3 class="text-lg font-semibold text-purple-900">Export Cepat</h3>
-                    <p class="text-sm text-purple-700">Export laporan langsung tanpa kustomisasi</p>
+                    <p class="text-sm text-purple-700">Export laporan langsung dengan periode aktif</p>
                 </div>
             </div>
 
-            <form id="quickExportForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form id="quickExportForm" class="grid grid-cols-1 md:grid-cols-4 gap-4" method="POST"
+                action="{{ route('admin.laporan.export') }}">
+                @csrf
                 <div>
                     <label for="quick_periode" class="block text-sm font-medium text-purple-800 mb-2">Periode</label>
                     <select id="quick_periode" name="periode_id" required
                         class="block w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                         <option value="">Pilih Periode</option>
                         @foreach ($periodeList as $periode)
-                            <option value="{{ $periode->id }}">{{ $periode->nama }}</option>
+                            <option value="{{ $periode->id }}" {{ $periode->status === 'aktif' ? 'selected' : '' }}>
+                                {{ $periode->nama }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -169,161 +162,6 @@
             </div>
         </div>
 
-        <!-- Advanced Export Options -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">Export dengan Kustomisasi</h3>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Batch Export by Period -->
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="p-2 rounded-lg bg-blue-100">
-                            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-7 9a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h4 class="ml-3 font-semibold text-gray-900">Export Berdasarkan Periode</h4>
-                    </div>
-
-                    <form id="batchExportForm">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Periode
-                                    (Multiple)</label>
-                                <div class="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
-                                    @foreach ($periodeList as $periode)
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="batch_periode[]" value="{{ $periode->id }}"
-                                                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">{{ $periode->nama }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis</label>
-                                    <select name="batch_jenis" required
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                        <option value="ranking">Ranking</option>
-                                        <option value="statistik">Statistik</option>
-                                        <option value="lengkap">Lengkap</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Format</label>
-                                    <select name="batch_format" required
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                        <option value="pdf">PDF</option>
-                                        <option value="excel">Excel</option>
-                                        <option value="zip">ZIP (Gabungan)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <button type="submit"
-                                class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-                                Export Batch
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Custom Export Settings -->
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="p-2 rounded-lg bg-green-100">
-                            <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                </path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </div>
-                        <h4 class="ml-3 font-semibold text-gray-900">Export Custom</h4>
-                    </div>
-
-                    <form id="customExportForm">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
-                                <select name="custom_periode" required
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    <option value="">Pilih Periode</option>
-                                    @foreach ($periodeList as $periode)
-                                        <option value="{{ $periode->id }}">{{ $periode->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Filter Kelas Jabatan</label>
-                                <select name="custom_kelas"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    <option value="">Semua Kelas</option>
-                                    @for ($i = 17; $i >= 1; $i--)
-                                        <option value="{{ $i }}">Kelas {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Range Ranking</label>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="number" name="custom_rank_start" placeholder="Dari" min="1"
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    <input type="number" name="custom_rank_end" placeholder="Sampai" min="1"
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-gray-700">Konten Tambahan</label>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="custom_options[]" value="charts"
-                                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Sertakan Grafik & Chart</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="custom_options[]" value="summary"
-                                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Ringkasan Eksekutif</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="custom_options[]" value="recommendations"
-                                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Rekomendasi</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="custom_options[]" value="detailed_analysis"
-                                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Analisis Detail per Kriteria</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <button type="button" onclick="customExport('pdf')"
-                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
-                                    Export PDF
-                                </button>
-                                <button type="button" onclick="customExport('excel')"
-                                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
-                                    Export Excel
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Export History -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center justify-between mb-6">
@@ -361,137 +199,60 @@
 
     @push('scripts')
         <script>
-            // Quick Export Form Handler
-            document.getElementById('quickExportForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
-
-                if (!data.periode_id || !data.jenis_laporan || !data.format) {
-                    alert('Semua field harus diisi!');
-                    return;
-                }
-
-                showLoading();
-                exportReport(data);
-            });
-
-            // Batch Export Form Handler
-            document.getElementById('batchExportForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                const periods = formData.getAll('batch_periode[]');
-
-                if (periods.length === 0) {
-                    alert('Pilih minimal satu periode!');
-                    return;
-                }
-
-                const data = {
-                    type: 'batch',
-                    periods: periods,
-                    jenis_laporan: formData.get('batch_jenis'),
-                    format: formData.get('batch_format')
-                };
-
-                showLoading();
-                exportReport(data);
-            });
-
             function generateQuickReport(jenis, format) {
                 // Get active period or prompt user to select
                 const aktivePeriode = @json($periodeList->where('status', 'aktif')->first());
 
                 if (aktivePeriode) {
-                    const data = {
+                    showLoading();
+
+                    // Create form and submit
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route('admin.laporan.export') }}';
+
+                    // Add CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    // Add form data
+                    const inputs = {
                         periode_id: aktivePeriode.id,
                         jenis_laporan: jenis,
                         format: format,
-                        include_chart: true
+                        include_chart: 1
                     };
 
-                    showLoading();
-                    exportReport(data);
+                    Object.keys(inputs).forEach(key => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = inputs[key];
+                        form.appendChild(input);
+                    });
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+
+                    // Add to history
+                    addToHistory({
+                        filename: `Laporan_${jenis}_${aktivePeriode.nama}_${new Date().toISOString().slice(0, 10)}.${format}`,
+                        type: jenis,
+                        format: format,
+                        timestamp: new Date().toLocaleString('id-ID')
+                    });
+
+                    setTimeout(() => {
+                        hideLoading();
+                    }, 2000);
                 } else {
-                    // Show period selection modal
                     showPeriodSelection(jenis, format);
                 }
-            }
-
-            function customExport(format) {
-                const form = document.getElementById('customExportForm');
-                const formData = new FormData(form);
-
-                if (!formData.get('custom_periode')) {
-                    alert('Periode harus dipilih!');
-                    return;
-                }
-
-                const data = {
-                    type: 'custom',
-                    periode_id: formData.get('custom_periode'),
-                    kelas_jabatan: formData.get('custom_kelas'),
-                    rank_start: formData.get('custom_rank_start'),
-                    rank_end: formData.get('custom_rank_end'),
-                    options: formData.getAll('custom_options[]'),
-                    format: format,
-                    jenis_laporan: 'lengkap' // Default untuk custom export
-                };
-
-                showLoading();
-                exportReport(data);
-            }
-
-            function exportReport(data) {
-                // Simulate API call
-                fetch('{{ route('admin.laporan.store') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.blob();
-                        }
-                        throw new Error('Export failed');
-                    })
-                    .then(blob => {
-                        // Create download link
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-
-                        // Generate filename
-                        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                        const filename = `Laporan_${data.jenis_laporan || 'Custom'}_${timestamp}.${data.format}`;
-                        a.download = filename;
-
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-
-                        // Add to history
-                        addToHistory({
-                            filename: filename,
-                            type: data.jenis_laporan || 'Custom',
-                            format: data.format,
-                            timestamp: new Date().toLocaleString('id-ID')
-                        });
-
-                        hideLoading();
-                        showSuccessMessage('Laporan berhasil di-export!');
-                    })
-                    .catch(error => {
-                        hideLoading();
-                        showErrorMessage('Gagal export laporan: ' + error.message);
-                    });
             }
 
             function showPeriodSelection(jenis, format) {
@@ -540,15 +301,54 @@
 
                 document.querySelector('.fixed').remove();
 
-                const data = {
+                showLoading();
+
+                // Create form and submit
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('admin.laporan.export') }}';
+
+                // Add CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+
+                // Add form data
+                const inputs = {
                     periode_id: periodeId,
                     jenis_laporan: jenis,
                     format: format,
-                    include_chart: true
+                    include_chart: 1
                 };
 
-                showLoading();
-                exportReport(data);
+                Object.keys(inputs).forEach(key => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = inputs[key];
+                    form.appendChild(input);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+
+                setTimeout(() => {
+                    hideLoading();
+                }, 2000);
+            }
+
+            function showLoading() {
+                document.getElementById('loadingModal').classList.remove('hidden');
+                document.getElementById('loadingModal').classList.add('flex');
+            }
+
+            function hideLoading() {
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('loadingModal').classList.remove('flex');
             }
 
             function addToHistory(item) {
@@ -598,14 +398,6 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="redownload('${item.filename}')" 
-                                class="text-primary-600 hover:text-primary-900 p-1 rounded hover:bg-primary-50" title="Download Ulang">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                            </button>
                             <button onclick="removeFromHistory('${item.filename}')" 
                                 class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" title="Hapus">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -625,16 +417,9 @@
                         return 'bg-red-500';
                     case 'excel':
                         return 'bg-green-500';
-                    case 'zip':
-                        return 'bg-purple-500';
                     default:
                         return 'bg-gray-500';
                 }
-            }
-
-            function redownload(filename) {
-                // In real implementation, this would fetch the file from server
-                showInfoMessage('Fitur download ulang akan segera tersedia');
             }
 
             function removeFromHistory(filename) {
@@ -651,19 +436,7 @@
                 }
             }
 
-            function showSuccessMessage(message) {
-                showToast(message, 'success');
-            }
-
-            function showErrorMessage(message) {
-                showToast(message, 'error');
-            }
-
-            function showInfoMessage(message) {
-                showToast(message, 'info');
-            }
-
-            function showToast(message, type) {
+            function showToast(message, type = 'success') {
                 const colors = {
                     success: 'bg-green-500',
                     error: 'bg-red-500',
@@ -695,72 +468,71 @@
             document.addEventListener('DOMContentLoaded', function() {
                 updateHistoryDisplay();
 
-                // Auto-submit quick export when all fields are filled
-                const quickForm = document.getElementById('quickExportForm');
-                const quickInputs = quickForm.querySelectorAll('select');
+                // Handle form submissions with loading
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const formData = new FormData(this);
 
-                quickInputs.forEach(input => {
-                    input.addEventListener('change', function() {
-                        const formData = new FormData(quickForm);
-                        const data = Object.fromEntries(formData.entries());
-
-                        if (data.periode_id && data.jenis_laporan && data.format) {
-                            // Auto-submit after short delay
-                            setTimeout(() => {
-                                if (quickForm.checkValidity()) {
-                                    quickForm.dispatchEvent(new Event('submit'));
-                                }
-                            }, 500);
+                        // Check required fields
+                        if (!formData.get('periode_id') || !formData.get('jenis_laporan') || !formData
+                            .get('format')) {
+                            e.preventDefault();
+                            showToast('Mohon lengkapi semua field yang diperlukan!', 'error');
+                            return;
                         }
+
+                        showLoading();
+
+                        // Add to history
+                        const periode = this.querySelector('[name="periode_id"] option:checked')
+                            ?.textContent || 'Unknown';
+                        const jenis = formData.get('jenis_laporan');
+                        const format = formData.get('format');
+
+                        addToHistory({
+                            filename: `Laporan_${jenis}_${periode}_${new Date().toISOString().slice(0, 10)}.${format}`,
+                            type: jenis,
+                            format: format,
+                            timestamp: new Date().toLocaleString('id-ID')
+                        });
+
+                        // Hide loading after delay (form will submit)
+                        setTimeout(() => {
+                            hideLoading();
+                        }, 2000);
                     });
                 });
 
-                // Validate batch export periods
-                const batchForm = document.getElementById('batchExportForm');
-                const batchCheckboxes = batchForm.querySelectorAll('input[type="checkbox"]');
+                // Validate forms in real time
+                const requiredSelects = document.querySelectorAll('select[required]');
+                requiredSelects.forEach(select => {
+                    select.addEventListener('change', function() {
+                        const form = this.closest('form');
+                        const submitBtns = form.querySelectorAll('button[type="submit"]');
 
-                batchCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const checked = batchForm.querySelectorAll('input[type="checkbox"]:checked');
-                        const submitBtn = batchForm.querySelector('button[type="submit"]');
+                        const periode = form.querySelector('[name="periode_id"]').value;
+                        const jenis = form.querySelector('[name="jenis_laporan"]').value;
+                        const format = form.querySelector('[name="format"]')?.value;
 
-                        if (checked.length === 0) {
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                        } else {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        }
+                        const isValid = periode && jenis && (format || form.id === 'customExportForm');
+
+                        submitBtns.forEach(btn => {
+                            if (isValid) {
+                                btn.disabled = false;
+                                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            } else {
+                                btn.disabled = true;
+                                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                            }
+                        });
                     });
                 });
 
-                // Validate custom export
-                const customForm = document.getElementById('customExportForm');
-                const customPeriode = customForm.querySelector('select[name="custom_periode"]');
-                const customButtons = customForm.querySelectorAll('button[type="button"]');
-
-                customPeriode.addEventListener('change', function() {
-                    const isValid = this.value !== '';
-
-                    customButtons.forEach(btn => {
-                        if (isValid) {
-                            btn.disabled = false;
-                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        } else {
-                            btn.disabled = true;
-                            btn.classList.add('opacity-50', 'cursor-not-allowed');
-                        }
-                    });
+                // Initial validation
+                requiredSelects.forEach(select => {
+                    select.dispatchEvent(new Event('change'));
                 });
-
-                // Initialize button states
-                customButtons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                });
-
-                batchForm.querySelector('button[type="submit"]').disabled = true;
-                batchForm.querySelector('button[type="submit"]').classList.add('opacity-50', 'cursor-not-allowed');
             });
 
             // Keyboard shortcuts
@@ -770,10 +542,6 @@
                         case 'e':
                             e.preventDefault();
                             document.getElementById('quick_periode').focus();
-                            break;
-                        case 'g':
-                            e.preventDefault();
-                            window.location.href = '{{ route('admin.laporan.generate') }}';
                             break;
                     }
                 }

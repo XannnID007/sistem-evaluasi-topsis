@@ -25,15 +25,15 @@
                     </svg>
                     Perbandingan Periode
                 </a>
-                <button onclick="exportData()"
+                <a href="{{ route('admin.laporan.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-success-600 hover:bg-success-700 text-white font-medium rounded-lg transition-colors">
                     <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                         </path>
                     </svg>
-                    Export Data
-                </button>
+                    Buat Laporan
+                </a>
             </div>
         </div>
 
@@ -125,12 +125,11 @@
                     <select id="kelas_jabatan" name="kelas_jabatan"
                         class="block w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">Semua Kelas</option>
-                        <option value="Staff" {{ request('kelas_jabatan') == 'Staff' ? 'selected' : '' }}>Staff</option>
-                        <option value="Supervisor" {{ request('kelas_jabatan') == 'Supervisor' ? 'selected' : '' }}>
-                            Supervisor</option>
-                        <option value="Kepala Seksi" {{ request('kelas_jabatan') == 'Kepala Seksi' ? 'selected' : '' }}>
-                            Kepala Seksi</option>
-                        <option value="Camat" {{ request('kelas_jabatan') == 'Camat' ? 'selected' : '' }}>Camat</option>
+                        @for ($i = 17; $i >= 1; $i--)
+                            <option value="{{ $i }}" {{ request('kelas_jabatan') == $i ? 'selected' : '' }}>
+                                Kelas {{ $i }}
+                            </option>
+                        @endfor
                     </select>
                 </div>
 
@@ -401,62 +400,6 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                titleColor: '#ffffff',
-                                bodyColor: '#ffffff',
-                                cornerRadius: 8,
-                                displayColors: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) :
-                                        0;
-                                        return `${label}: ${value} pegawai (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '50%'
-                    }
-                });
-
-                // Criteria Average Chart
-                const criteriaCtx = document.getElementById('criteriaChart').getContext('2d');
-                const criteriaData = @json(array_values($chartData['criteria_avg'] ?? []));
-                const criteriaLabels = @json(array_keys($chartData['criteria_avg'] ?? []));
-
-                new Chart(criteriaCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: criteriaLabels,
-                        datasets: [{
-                            label: 'Rata-rata Nilai',
-                            data: criteriaData,
-                            backgroundColor: [
-                                '#3b82f6', // primary-500
-                                '#22c55e', // success-500
-                                '#0ea5e9', // secondary-500
-                                '#f59e0b', // warning-500
-                                '#ef4444' // danger-500
-                            ],
-                            borderRadius: 8,
-                            borderSkipped: false,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
                                 display: false
                             },
                             tooltip: {
@@ -489,16 +432,6 @@
                     }
                 });
             });
-
-            function exportData() {
-                const params = new URLSearchParams(window.location.search);
-                const format = prompt('Pilih format export:\n1. Excel\n2. PDF\n\nKetik "excel" atau "pdf":', 'excel');
-
-                if (format === 'excel' || format === 'pdf') {
-                    params.set('format', format);
-                    window.location.href = `{{ route('admin.hasil.export') }}?${params.toString()}`;
-                }
-            }
         </script>
     @endpush
 @endsection
