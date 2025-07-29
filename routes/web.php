@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\EvaluasiController as AdminEvaluasiController;
 use App\Http\Controllers\Admin\HasilController as AdminHasilController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\KriteriaController as AdminKriteriaController;
-use App\Http\Controllers\Admin\PeriodeController as AdminPeriodeController; // Tambahkan import ini
+use App\Http\Controllers\Admin\PeriodeController as AdminPeriodeController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\Pegawai\EvaluasiController as PegawaiEvaluasiController;
 use App\Http\Controllers\Pegawai\HistoryController as PegawaiHistoryController;
@@ -53,13 +53,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/evaluasi/bulk/create', [AdminEvaluasiController::class, 'bulkCreate'])->name('evaluasi.bulk-create');
     Route::post('/evaluasi/bulk/store', [AdminEvaluasiController::class, 'bulkStore'])->name('evaluasi.bulk-store');
 
-    // Hasil & Ranking
+    // Hasil & Ranking - PERBAIKAN ROUTING
     Route::get('/hasil', [AdminHasilController::class, 'index'])->name('hasil.index');
-    Route::get('/hasil/{evaluasi}', [AdminHasilController::class, 'show'])->name('hasil.show');
-    Route::get('/hasil/export', [AdminHasilController::class, 'export'])->name('hasil.export');
     Route::get('/hasil/comparison', [AdminHasilController::class, 'comparison'])->name('hasil.comparison');
+    Route::get('/hasil/export', [AdminHasilController::class, 'export'])->name('hasil.export');
+    Route::get('/hasil/{evaluasi}', [AdminHasilController::class, 'show'])->name('hasil.show');
 
-    // Laporan
+    // Laporan - PERBAIKAN ROUTING
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/generate', [AdminLaporanController::class, 'generate'])->name('laporan.generate');
     Route::post('/laporan/generate', [AdminLaporanController::class, 'store'])->name('laporan.store');
@@ -71,7 +71,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/kriteria/{kriteria}/toggle-status', [AdminKriteriaController::class, 'toggleStatus'])->name('kriteria.toggle-status');
     Route::post('/kriteria/reset-default', [AdminKriteriaController::class, 'resetToDefault'])->name('kriteria.reset-default');
 
-    // Periode Evaluasi - TAMBAHKAN ROUTE INI
+    // Periode Evaluasi
     Route::resource('periode', AdminPeriodeController::class);
     Route::post('/periode/{periode}/activate', [AdminPeriodeController::class, 'activate'])->name('periode.activate');
     Route::post('/periode/{periode}/deactivate', [AdminPeriodeController::class, 'deactivate'])->name('periode.deactivate');
@@ -121,11 +121,11 @@ Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
     Route::get('/evaluasi/stats/{periode_id}', function ($periodeId) {
         $stats = App\Models\Evaluasi::where('periode_id', $periodeId)
             ->selectRaw('
-                                       COUNT(*) as total,
-                                       AVG(total_skor) as avg_score,
-                                       MAX(total_skor) as max_score,
-                                       MIN(total_skor) as min_score
-                                   ')
+                COUNT(*) as total,
+                AVG(total_skor) as avg_score,
+                MAX(total_skor) as max_score,
+                MIN(total_skor) as min_score
+            ')
             ->first();
         return response()->json($stats);
     })->name('evaluasi.stats');

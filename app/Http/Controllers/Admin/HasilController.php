@@ -7,6 +7,8 @@ use App\Models\Evaluasi;
 use App\Models\PeriodeEvaluasi;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HasilController extends Controller
 {
@@ -102,33 +104,44 @@ class HasilController extends Controller
             ')
             ->first();
 
-        // Hitung total pegawai dalam periode ini - INI YANG MISSING
+        // Hitung total pegawai dalam periode ini
         $totalPegawai = Evaluasi::where('periode_id', $evaluasi->periode_id)->count();
 
         return view('admin.hasil.show', compact(
             'evaluasi',
             'historyRanking',
             'avgPeriode',
-            'totalPegawai'  // Tambahkan variabel ini
+            'totalPegawai'
         ));
     }
 
     public function export(Request $request)
     {
         $periodeId = $request->periode_id;
-        $format = $request->format ?? 'excel'; // excel atau pdf
+        $format = $request->format ?? 'excel';
 
-        $evaluasiList = Evaluasi::with(['user', 'periode'])
-            ->when($periodeId, function ($query) use ($periodeId) {
-                return $query->where('periode_id', $periodeId);
-            })
-            ->orderBy('ranking', 'asc')
-            ->get();
+        try {
+            $evaluasiList = Evaluasi::with(['user', 'periode'])
+                ->when($periodeId, function ($query) use ($periodeId) {
+                    return $query->where('periode_id', $periodeId);
+                })
+                ->orderBy('ranking', 'asc')
+                ->get();
 
-        if ($format === 'pdf') {
-            return $this->exportPDF($evaluasiList, $periodeId);
-        } else {
-            return $this->exportExcel($evaluasiList, $periodeId);
+            if ($evaluasiList->isEmpty()) {
+                return back()->with('error', 'Tidak ada data evaluasi untuk diekspor.');
+            }
+
+            $periode = $periodeId ? PeriodeEvaluasi::find($periodeId) : null;
+            $filename = 'Hasil_Evaluasi_' . ($periode ? $periode->nama : 'Semua_Periode') . '_' . date('Y-m-d');
+
+            if ($format === 'pdf') {
+                return $this->exportPDF($evaluasiList, $periode, $filename);
+            } else {
+                return $this->exportExcel($evaluasiList, $periode, $filename);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat mengekspor data: ' . $e->getMessage());
         }
     }
 
@@ -137,10 +150,9 @@ class HasilController extends Controller
         $periode1Id = $request->periode1_id;
         $periode2Id = $request->periode2_id;
 
-        if (!$periode1Id || !$periode2Id) {
-            // Jika tidak ada periode yang dipilih, tampilkan form kosong
-            $periodeList = PeriodeEvaluasi::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
+        $periodeList = PeriodeEvaluasi::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
 
+        if (!$periode1Id || !$periode2Id) {
             return view('admin.hasil.comparison', compact('periodeList'));
         }
 
@@ -150,6 +162,10 @@ class HasilController extends Controller
         if (!$periode1 || !$periode2) {
             return redirect()->route('admin.hasil.index')
                 ->with('error', 'Periode yang dipilih tidak valid.');
+        }
+
+        if ($periode1Id == $periode2Id) {
+            return back()->with('error', 'Silakan pilih dua periode yang berbeda.');
         }
 
         $evaluasi1 = Evaluasi::with('user')->where('periode_id', $periode1Id)->get()->keyBy('user_id');
@@ -168,7 +184,7 @@ class HasilController extends Controller
                 'periode1' => $eval1,
                 'periode2' => $eval2,
                 'skor_diff' => $eval2->total_skor - $eval1->total_skor,
-                'ranking_diff' => $eval1->ranking - $eval2->ranking, // Positif jika naik
+                'ranking_diff' => $eval1->ranking - $eval2->ranking, // Positif jika naik ranking
             ];
         }
 
@@ -176,8 +192,6 @@ class HasilController extends Controller
         usort($comparisonData, function ($a, $b) {
             return $b['skor_diff'] <=> $a['skor_diff'];
         });
-
-        $periodeList = PeriodeEvaluasi::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
 
         return view('admin.hasil.comparison', compact(
             'comparisonData',
@@ -221,23 +235,96 @@ class HasilController extends Controller
         ];
     }
 
-    private function exportPDF($evaluasiList, $periodeId)
+    private function exportPDF($evaluasiList, $periode, $filename)
     {
-        // Implementasi export PDF
-        // Menggunakan library seperti DomPDF atau TCPDF
-        return response()->json([
-            'message' => 'PDF export will be implemented',
-            'data_count' => $evaluasiList->count()
-        ]);
+        $data = [
+            'evaluasiList' => $evaluasiList,
+            'periode' => $periode,
+            'generated_at' => now(),
+            'generated_by' => auth()->user()->nama
+        ];
+
+        $pdf = Pdf::loadView('admin.laporan.templates.hasil-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download($filename . '.pdf');
     }
 
-    private function exportExcel($evaluasiList, $periodeId)
+    private function exportExcel($evaluasiList, $periode, $filename)
     {
-        // Implementasi export Excel
-        // Menggunakan Laravel Excel package
-        return response()->json([
-            'message' => 'Excel export will be implemented',
-            'data_count' => $evaluasiList->count()
-        ]);
+        return Excel::download(new HasilEvaluasiExport($evaluasiList, $periode), $filename . '.xlsx');
+    }
+}
+
+class HasilEvaluasiExport implements
+    \Maatwebsite\Excel\Concerns\FromCollection,
+    \Maatwebsite\Excel\Concerns\WithHeadings,
+    \Maatwebsite\Excel\Concerns\WithStyles,
+    \Maatwebsite\Excel\Concerns\ShouldAutoSize
+{
+    protected $evaluasiList;
+    protected $periode;
+
+    public function __construct($evaluasiList, $periode)
+    {
+        $this->evaluasiList = $evaluasiList;
+        $this->periode = $periode;
+    }
+
+    public function collection()
+    {
+        return $this->evaluasiList->map(function ($evaluasi, $index) {
+            return [
+                'No' => $index + 1,
+                'Ranking' => $evaluasi->ranking,
+                'Nama Pegawai' => $evaluasi->user->nama,
+                'Jabatan' => $evaluasi->user->jabatan,
+                'Kelas Jabatan' => $evaluasi->user->getKelasJabatanShort(),
+                'C1 - Produktivitas' => $evaluasi->c1_produktivitas,
+                'C2 - Tanggung Jawab' => $evaluasi->c2_tanggung_jawab,
+                'C3 - Kehadiran' => $evaluasi->c3_kehadiran,
+                'C4 - Pelanggaran' => $evaluasi->c4_pelanggaran,
+                'C5 - Terlambat' => $evaluasi->c5_terlambat,
+                'Total Skor CPI' => number_format($evaluasi->total_skor, 5),
+                'Kategori' => $this->getKategori($evaluasi->total_skor),
+                'Periode' => $evaluasi->periode->nama,
+                'Tanggal Evaluasi' => $evaluasi->created_at->format('d/m/Y'),
+            ];
+        });
+    }
+
+    public function headings(): array
+    {
+        return [
+            'No',
+            'Ranking',
+            'Nama Pegawai',
+            'Jabatan',
+            'Kelas Jabatan',
+            'C1 - Produktivitas',
+            'C2 - Tanggung Jawab',
+            'C3 - Kehadiran',
+            'C4 - Pelanggaran',
+            'C5 - Terlambat',
+            'Total Skor CPI',
+            'Kategori',
+            'Periode',
+            'Tanggal Evaluasi'
+        ];
+    }
+
+    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true, 'size' => 12]],
+        ];
+    }
+
+    private function getKategori($skor)
+    {
+        if ($skor > 150) return 'Sangat Baik';
+        if ($skor >= 130) return 'Baik';
+        if ($skor >= 110) return 'Cukup';
+        return 'Kurang';
     }
 }
