@@ -93,16 +93,24 @@ class HasilController extends Controller
         // Bandingkan dengan rata-rata periode
         $avgPeriode = Evaluasi::where('periode_id', $evaluasi->periode_id)
             ->selectRaw('
-                                 AVG(c1_produktivitas) as avg_c1,
-                                 AVG(c2_tanggung_jawab) as avg_c2,
-                                 AVG(c3_kehadiran) as avg_c3,
-                                 AVG(c4_pelanggaran) as avg_c4,
-                                 AVG(c5_terlambat) as avg_c5,
-                                 AVG(total_skor) as avg_total
-                             ')
+                AVG(c1_produktivitas) as avg_c1,
+                AVG(c2_tanggung_jawab) as avg_c2,
+                AVG(c3_kehadiran) as avg_c3,
+                AVG(c4_pelanggaran) as avg_c4,
+                AVG(c5_terlambat) as avg_c5,
+                AVG(total_skor) as avg_total
+            ')
             ->first();
 
-        return view('admin.hasil.show', compact('evaluasi', 'historyRanking', 'avgPeriode'));
+        // Hitung total pegawai dalam periode ini - INI YANG MISSING
+        $totalPegawai = Evaluasi::where('periode_id', $evaluasi->periode_id)->count();
+
+        return view('admin.hasil.show', compact(
+            'evaluasi',
+            'historyRanking',
+            'avgPeriode',
+            'totalPegawai'  // Tambahkan variabel ini
+        ));
     }
 
     public function export(Request $request)
@@ -130,12 +138,19 @@ class HasilController extends Controller
         $periode2Id = $request->periode2_id;
 
         if (!$periode1Id || !$periode2Id) {
-            return redirect()->route('admin.hasil.index')
-                ->with('error', 'Silakan pilih 2 periode untuk perbandingan.');
+            // Jika tidak ada periode yang dipilih, tampilkan form kosong
+            $periodeList = PeriodeEvaluasi::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
+
+            return view('admin.hasil.comparison', compact('periodeList'));
         }
 
         $periode1 = PeriodeEvaluasi::find($periode1Id);
         $periode2 = PeriodeEvaluasi::find($periode2Id);
+
+        if (!$periode1 || !$periode2) {
+            return redirect()->route('admin.hasil.index')
+                ->with('error', 'Periode yang dipilih tidak valid.');
+        }
 
         $evaluasi1 = Evaluasi::with('user')->where('periode_id', $periode1Id)->get()->keyBy('user_id');
         $evaluasi2 = Evaluasi::with('user')->where('periode_id', $periode2Id)->get()->keyBy('user_id');
