@@ -43,18 +43,20 @@
             border-radius: 3px;
         }
         
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+        .summary-stats {
+            display: flex;
+            justify-content: space-between;
             text-align: center;
+            margin-top: 10px;
         }
         
         .summary-item {
+            flex: 1;
             padding: 6px;
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 2px;
+            margin: 0 2px;
         }
         
         .summary-value {
@@ -126,17 +128,18 @@
         }
         
         .dist-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            display: flex;
+            justify-content: space-between;
             margin-top: 8px;
         }
         
         .dist-item {
+            flex: 1;
             text-align: center;
             padding: 8px;
             border-radius: 3px;
             color: white;
+            margin: 0 2px;
         }
         
         .dist-sangat-baik { background-color: #16a34a; }
@@ -155,6 +158,19 @@
             text-align: center;
             font-size: 8px;
             color: #666;
+        }
+        
+        .two-column {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .column {
+            flex: 1;
+            background-color: white;
+            border-radius: 5px;
+            padding: 10px;
         }
         
         @media print {
@@ -176,7 +192,7 @@
     <!-- Summary Statistics -->
     <div class="summary-box">
         <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 11px;">Ringkasan Statistik</h3>
-        <div class="summary-grid">
+        <div class="summary-stats">
             <div class="summary-item">
                 <div class="summary-value">{{ $statistik['total_pegawai'] }}</div>
                 <div class="summary-label">Total Pegawai</div>
@@ -259,34 +275,59 @@
     <!-- Page Break -->
     <div class="page-break"></div>
 
-    <!-- Distribution Analysis -->
-    <div class="distribution">
-        <h3 style="margin-top: 0; font-size: 11px;">Distribusi Kinerja</h3>
-        @php
-            $total = $statistik['total_pegawai'];
-        @endphp
-        
-        <div class="dist-grid">
-            <div class="dist-item dist-sangat-baik">
-                <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['sangat_baik'] }}</div>
-                <div style="font-size: 8px;">Sangat Baik</div>
-                <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['sangat_baik']/$total)*100, 1) : 0 }}%)</div>
+    <!-- Distribution and Criteria Analysis -->
+    <div class="two-column">
+        <!-- Distribution Analysis -->
+        <div class="column">
+            <h3 style="margin-top: 0; font-size: 11px;">Distribusi Kinerja</h3>
+            @php
+                $total = $statistik['total_pegawai'];
+            @endphp
+            
+            <div class="dist-grid">
+                <div class="dist-item dist-sangat-baik">
+                    <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['sangat_baik'] }}</div>
+                    <div style="font-size: 8px;">Sangat Baik</div>
+                    <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['sangat_baik']/$total)*100, 1) : 0 }}%)</div>
+                </div>
+                <div class="dist-item dist-baik">
+                    <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['baik'] }}</div>
+                    <div style="font-size: 8px;">Baik</div>
+                    <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['baik']/$total)*100, 1) : 0 }}%)</div>
+                </div>
+                <div class="dist-item dist-cukup">
+                    <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['cukup'] }}</div>
+                    <div style="font-size: 8px;">Cukup</div>
+                    <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['cukup']/$total)*100, 1) : 0 }}%)</div>
+                </div>
+                <div class="dist-item dist-kurang">
+                    <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['kurang'] }}</div>
+                    <div style="font-size: 8px;">Kurang</div>
+                    <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['kurang']/$total)*100, 1) : 0 }}%)</div>
+                </div>
             </div>
-            <div class="dist-item dist-baik">
-                <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['baik'] }}</div>
-                <div style="font-size: 8px;">Baik</div>
-                <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['baik']/$total)*100, 1) : 0 }}%)</div>
-            </div>
-            <div class="dist-item dist-cukup">
-                <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['cukup'] }}</div>
-                <div style="font-size: 8px;">Cukup</div>
-                <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['cukup']/$total)*100, 1) : 0 }}%)</div>
-            </div>
-            <div class="dist-item dist-kurang">
-                <div style="font-size: 12px; font-weight: bold;">{{ $statistik['distribusi']['kurang'] }}</div>
-                <div style="font-size: 8px;">Kurang</div>
-                <div style="font-size: 7px;">({{ $total > 0 ? round(($statistik['distribusi']['kurang']/$total)*100, 1) : 0 }}%)</div>
-            </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="column">
+            <h3 style="margin-top: 0; font-size: 11px;">Top 5 Performers</h3>
+            @foreach($evaluasi_list->sortBy('ranking')->take(5) as $evaluasi)
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid #eee;">
+                    <div style="display: flex; align-items: center;">
+                        <span style="background-color: {{ $evaluasi->ranking <= 3 ? '#ffd700' : '#ccc' }}; color: white; font-weight: bold; font-size: 8px; padding: 2px 4px; border-radius: 50%; margin-right: 5px; min-width: 20px; text-align: center;">
+                            {{ $evaluasi->ranking }}
+                        </span>
+                        <div>
+                            <div style="font-size: 8px; font-weight: bold;">{{ $evaluasi->user->nama }}</div>
+                            <div style="font-size: 7px; color: #666;">{{ Str::limit($evaluasi->user->jabatan, 25) }}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 9px; font-weight: bold;">{{ number_format($evaluasi->total_skor, 2) }}</div>
+                        <div style="font-size: 7px; color: #666;">Skor</div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 
@@ -301,7 +342,7 @@
                     <th width="12%">Rata-rata</th>
                     <th width="12%">Tertinggi</th>
                     <th width="12%">Terendah</th>
-                    <th width="15%">Standar Deviasi</th>
+                    <th width="15%">Std Deviasi</th>
                     <th width="12%">Keterangan</th>
                 </tr>
             </thead>
@@ -312,7 +353,7 @@
                     <td class="text-center">{{ number_format($statistik['rata_kriteria']['c1'], 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->max('c1_produktivitas'), 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->min('c1_produktivitas'), 2) }}</td>
-                    <td class="text-center">{{ number_format($evaluasi_list->std('c1_produktivitas') ?? 0, 2) }}</td>
+                    <td class="text-center">{{ number_format(sqrt($evaluasi_list->map(fn($e) => pow($e->c1_produktivitas - $statistik['rata_kriteria']['c1'], 2))->sum() / $evaluasi_list->count()), 2) }}</td>
                     <td class="text-center">Tren Positif</td>
                 </tr>
                 <tr>
@@ -321,7 +362,7 @@
                     <td class="text-center">{{ number_format($statistik['rata_kriteria']['c2'], 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->max('c2_tanggung_jawab'), 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->min('c2_tanggung_jawab'), 2) }}</td>
-                    <td class="text-center">{{ number_format($evaluasi_list->std('c2_tanggung_jawab') ?? 0, 2) }}</td>
+                    <td class="text-center">{{ number_format(sqrt($evaluasi_list->map(fn($e) => pow($e->c2_tanggung_jawab - $statistik['rata_kriteria']['c2'], 2))->sum() / $evaluasi_list->count()), 2) }}</td>
                     <td class="text-center">Tren Positif</td>
                 </tr>
                 <tr>
@@ -330,7 +371,7 @@
                     <td class="text-center">{{ number_format($statistik['rata_kriteria']['c3'], 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->max('c3_kehadiran'), 2) }}</td>
                     <td class="text-center">{{ number_format($evaluasi_list->min('c3_kehadiran'), 2) }}</td>
-                    <td class="text-center">{{ number_format($evaluasi_list->std('c3_kehadiran') ?? 0, 2) }}</td>
+                    <td class="text-center">{{ number_format(sqrt($evaluasi_list->map(fn($e) => pow($e->c3_kehadiran - $statistik['rata_kriteria']['c3'], 2))->sum() / $evaluasi_list->count()), 2) }}</td>
                     <td class="text-center">Tren Positif</td>
                 </tr>
                 <tr>
@@ -339,7 +380,7 @@
                     <td class="text-center">{{ number_format($statistik['rata_kriteria']['c4'], 2) }}</td>
                     <td class="text-center">{{ $evaluasi_list->max('c4_pelanggaran') }}</td>
                     <td class="text-center">{{ $evaluasi_list->min('c4_pelanggaran') }}</td>
-                    <td class="text-center">{{ number_format($evaluasi_list->std('c4_pelanggaran') ?? 0, 2) }}</td>
+                    <td class="text-center">{{ number_format(sqrt($evaluasi_list->map(fn($e) => pow($e->c4_pelanggaran - $statistik['rata_kriteria']['c4'], 2))->sum() / $evaluasi_list->count()), 2) }}</td>
                     <td class="text-center">Tren Negatif</td>
                 </tr>
                 <tr>
@@ -348,11 +389,51 @@
                     <td class="text-center">{{ number_format($statistik['rata_kriteria']['c5'], 2) }}</td>
                     <td class="text-center">{{ $evaluasi_list->max('c5_terlambat') }}</td>
                     <td class="text-center">{{ $evaluasi_list->min('c5_terlambat') }}</td>
-                    <td class="text-center">{{ number_format($evaluasi_list->std('c5_terlambat') ?? 0, 2) }}</td>
+                    <td class="text-center">{{ number_format(sqrt($evaluasi_list->map(fn($e) => pow($e->c5_terlambat - $statistik['rata_kriteria']['c5'], 2))->sum() / $evaluasi_list->count()), 2) }}</td>
                     <td class="text-center">Tren Negatif</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Recommendations -->
+    <div style="margin-top: 15px; padding: 10px; background-color: #f0f9ff; border-radius: 5px;">
+        <h3 style="margin-top: 0; font-size: 11px; color: #1e40af;">Rekomendasi dan Tindak Lanjut</h3>
+        
+        @php
+            $improvedCount = $evaluasi_list->where('total_skor', '>', $statistik['rata_skor'])->count();
+            $needAttentionCount = $evaluasi_list->where('total_skor', '<', 110)->count();
+        @endphp
+        
+        <ul style="margin: 5px 0; padding-left: 15px; font-size: 8px;">
+            @if($improvedCount > ($statistik['total_pegawai'] / 2))
+                <li style="margin-bottom: 3px;">
+                    <strong>Tren Positif:</strong> {{ $improvedCount }} pegawai ({{ round(($improvedCount / $statistik['total_pegawai']) * 100, 1) }}%) berada di atas rata-rata. Pertahankan strategi pengembangan yang ada.
+                </li>
+            @endif
+            
+            @if($needAttentionCount > 0)
+                <li style="margin-bottom: 3px;">
+                    <strong>Perlu Perhatian:</strong> {{ $needAttentionCount }} pegawai memiliki skor di bawah 110 dan memerlukan program peningkatan kinerja khusus.
+                </li>
+            @endif
+            
+            <li style="margin-bottom: 3px;">
+                <strong>Program Mentoring:</strong> Adakan program mentoring antara pegawai dengan skor tinggi dengan yang memerlukan peningkatan.
+            </li>
+            
+            @if($statistik['rata_kriteria']['c3'] < 80)
+                <li style="margin-bottom: 3px;">
+                    <strong>Kehadiran:</strong> Rata-rata kehadiran masih perlu ditingkatkan. Implementasikan sistem monitoring kehadiran yang lebih ketat.
+                </li>
+            @endif
+            
+            @if($statistik['rata_kriteria']['c4'] > 1 || $statistik['rata_kriteria']['c5'] > 2)
+                <li style="margin-bottom: 3px;">
+                    <strong>Disiplin:</strong> Perlu penguatan aturan disiplin dan sanksi yang tegas untuk mengurangi pelanggaran dan keterlambatan.
+                </li>
+            @endif
+        </ul>
     </div>
 
     <!-- Footer -->

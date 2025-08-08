@@ -11,7 +11,7 @@
                 <p class="text-gray-600 mt-1">{{ $evaluasi->periode->nama }}</p>
             </div>
             <div class="flex space-x-3">
-                <button onclick="downloadEvaluasi()"
+                <a href="{{ route('pegawai.evaluasi.download', $evaluasi->id) }}"
                     class="inline-flex items-center px-4 py-2 bg-secondary-600 hover:bg-secondary-700 text-white font-medium rounded-lg transition-colors">
                     <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -19,7 +19,7 @@
                         </path>
                     </svg>
                     Download PDF
-                </button>
+                </a>
                 <a href="{{ route('pegawai.evaluasi.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors">
                     <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,6 +27,29 @@
                     </svg>
                     Kembali
                 </a>
+            </div>
+        </div>
+
+        <div id="downloadSuccess" class="hidden bg-success-50 border border-success-200 rounded-xl p-4">
+            <div class="flex">
+                <svg class="h-5 w-5 text-success-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-success-700 font-medium">
+                        PDF berhasil diunduh! Silakan periksa folder download Anda.
+                    </p>
+                </div>
+                <button onclick="document.getElementById('downloadSuccess').classList.add('hidden')"
+                    class="ml-auto text-success-400 hover:text-success-600">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 

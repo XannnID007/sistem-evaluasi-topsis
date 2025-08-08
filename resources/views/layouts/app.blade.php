@@ -239,16 +239,6 @@
 
                 <!-- User Info -->
                 <div class="flex items-center space-x-4">
-                    <!-- Notifications (placeholder) -->
-                    <button class="relative p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-5-5V9a7 7 0 10-14 0v3l-5 5h5m14 0v1a3 3 0 01-3 3H9a3 3 0 01-3-3v-1m14 0V9a7 7 0 00-7-7">
-                            </path>
-                        </svg>
-                        <!-- Notification badge -->
-                        <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                    </button>
 
                     <!-- User Profile -->
                     <div class="flex items-center space-x-3" x-data="{ profileOpen: false }">
