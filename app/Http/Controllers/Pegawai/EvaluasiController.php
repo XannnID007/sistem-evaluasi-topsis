@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Evaluasi;
 use App\Models\PeriodeEvaluasi;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EvaluasiController extends Controller
 {
@@ -82,14 +83,67 @@ class EvaluasiController extends Controller
             abort(403, 'Anda tidak memiliki akses ke evaluasi ini.');
         }
 
-        // Generate PDF report untuk pegawai
-        // Implementasi akan menggunakan library PDF
-        // Untuk sekarang, return response JSON sebagai placeholder
+        $evaluasi->load(['periode', 'creator']);
 
-        return response()->json([
-            'message' => 'PDF download will be implemented',
-            'evaluasi_id' => $evaluasi->id,
-            'filename' => "Evaluasi_{$evaluasi->user->nama}_{$evaluasi->periode->nama}.pdf"
-        ]);
+        // Bandingkan dengan rata-rata periode
+        $avgPeriode = Evaluasi::where('periode_id', $evaluasi->periode_id)
+            ->selectRaw('
+                AVG(c1_produktivitas) as avg_c1,
+                AVG(c2_tanggung_jawab) as avg_c2,
+                AVG(c3_kehadiran) as avg_c3,
+                AVG(c4_pelanggaran) as avg_c4,
+                AVG(c5_terlambat) as avg_c5,
+                AVG(total_skor) as avg_total
+            ')
+            ->first();
+
+        // Posisi dalam periode
+        $totalPegawai = Evaluasi::where('periode_id', $evaluasi->periode_id)->count();
+        $pegawaiBawah = Evaluasi::where('periode_id', $evaluasi->periode_id)
+            ->where('total_skor', '<', $evaluasi->total_skor)
+            ->count();
+        $persentil = $totalPegawai > 0 ? round(($pegawaiBawah / $totalPegawai) * 100) : 0;
+
+        // History evaluasi (5 terakhir untuk tren)
+        $historyEvaluasi = auth()->user()->evaluasi()
+            ->with('periode')
+            ->where('id', '!=', $evaluasi->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Kategori kinerja
+        $kategori = match (true) {
+            $evaluasi->total_skor > 150 => 'Sangat Baik',
+            $evaluasi->total_skor >= 130 => 'Baik',
+            $evaluasi->total_skor >= 110 => 'Cukup',
+            default => 'Kurang',
+        };
+
+        $data = [
+            'evaluasi' => $evaluasi,
+            'avgPeriode' => $avgPeriode,
+            'totalPegawai' => $totalPegawai,
+            'persentil' => $persentil,
+            'historyEvaluasi' => $historyEvaluasi,
+            'kategori' => $kategori,
+            'generated_at' => now(),
+        ];
+
+        $filename = "Evaluasi_Kinerja_{$evaluasi->user->nama}_{$evaluasi->periode->nama}_" . date('Y-m-d');
+
+        try {
+            $pdf = Pdf::loadView('pegawai.evaluasi.pdf', $data);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'sans-serif'
+            ]);
+
+            return $pdf->download($filename . '.pdf');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengunduh PDF: ' . $e->getMessage());
+        }
     }
 }

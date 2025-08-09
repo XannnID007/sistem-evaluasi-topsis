@@ -53,12 +53,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/evaluasi/bulk/create', [AdminEvaluasiController::class, 'bulkCreate'])->name('evaluasi.bulk-create');
     Route::post('/evaluasi/bulk/store', [AdminEvaluasiController::class, 'bulkStore'])->name('evaluasi.bulk-store');
 
-    // Hasil & Ranking - SIMPLIFIED (No Export)
+    // Hasil & Ranking
     Route::get('/hasil', [AdminHasilController::class, 'index'])->name('hasil.index');
     Route::get('/hasil/comparison', [AdminHasilController::class, 'comparison'])->name('hasil.comparison');
     Route::get('/hasil/{evaluasi}', [AdminHasilController::class, 'show'])->name('hasil.show');
 
-    // Laporan - SIMPLIFIED (Only Index and Export)
+    // Laporan
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
     Route::post('/laporan/export', [AdminLaporanController::class, 'export'])->name('laporan.export');
 

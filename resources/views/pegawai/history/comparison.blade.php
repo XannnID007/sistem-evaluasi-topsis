@@ -20,10 +20,25 @@
             </a>
         </div>
 
+        <!-- Error Alert -->
+        @if (session('error'))
+            <div class="bg-danger-50 border border-danger-200 rounded-xl p-4">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-danger-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="ml-3 text-sm text-danger-700 font-medium">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
         <!-- Period Selection -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Pilih Periode untuk Perbandingan</h3>
-            <form method="GET" action="{{ route('pegawai.history.comparison') }}" class="flex flex-wrap items-end gap-4">
+            <form method="GET" action="{{ route('pegawai.history.comparison') }}" class="flex flex-wrap items-end gap-4"
+                data-loading-form>
                 <div class="flex-1 min-w-64">
                     <label for="periode_id" class="block text-sm font-medium text-gray-700 mb-2">Periode Evaluasi</label>
                     <select id="periode_id" name="periode_id" required
@@ -38,15 +53,44 @@
                     </select>
                 </div>
                 <div>
-                    <button type="submit"
-                        class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
-                        Bandingkan
+                    <button type="submit" id="compareBtn"
+                        class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50">
+                        <span class="btn-text">Bandingkan</span>
+                        <span class="btn-loading hidden">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Loading...
+                        </span>
                     </button>
                 </div>
             </form>
         </div>
 
         @if (isset($userEvaluasi) && isset($peerEvaluations))
+            <!-- Information Alert -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Info:</strong> Perbandingan dilakukan dengan rekan-rekan yang memiliki
+                            {{ auth()->user()->getKelasJabatanText() }} pada periode {{ $periode->nama }}.
+                            Total pegawai dalam perbandingan: {{ $totalPeers }} orang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Comparison Results -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- My Performance -->
@@ -67,12 +111,13 @@
                                     {{ number_format($userEvaluasi->total_skor, 2) }}</p>
                             </div>
                             <div class="bg-white bg-opacity-60 rounded-lg p-3">
-                                <p class="text-sm text-gray-600">Ranking</p>
+                                <p class="text-sm text-gray-600">Ranking Global</p>
                                 <p class="text-xl font-bold text-primary-700">#{{ $userEvaluasi->ranking }}</p>
                             </div>
                             <div class="bg-white bg-opacity-60 rounded-lg p-3">
-                                <p class="text-sm text-gray-600">Posisi dari {{ $totalPeers }} pegawai</p>
-                                <p class="text-lg font-bold text-primary-700">#{{ $myPosition }}</p>
+                                <p class="text-sm text-gray-600">Posisi di Kelas</p>
+                                <p class="text-lg font-bold text-primary-700">#{{ $myPosition }} dari
+                                    {{ $totalPeers }}</p>
                             </div>
                         </div>
                     </div>
@@ -156,11 +201,11 @@
 
                     @php
                         $avgPeerData = [
-                            'c1' => $peerEvaluations->avg('c1_produktivitas'),
-                            'c2' => $peerEvaluations->avg('c2_tanggung_jawab'),
-                            'c3' => $peerEvaluations->avg('c3_kehadiran'),
-                            'c4' => $peerEvaluations->avg('c4_pelanggaran'),
-                            'c5' => $peerEvaluations->avg('c5_terlambat'),
+                            'c1' => $peerEvaluations->count() > 0 ? $peerEvaluations->avg('c1_produktivitas') : 0,
+                            'c2' => $peerEvaluations->count() > 0 ? $peerEvaluations->avg('c2_tanggung_jawab') : 0,
+                            'c3' => $peerEvaluations->count() > 0 ? $peerEvaluations->avg('c3_kehadiran') : 0,
+                            'c4' => $peerEvaluations->count() > 0 ? $peerEvaluations->avg('c4_pelanggaran') : 0,
+                            'c5' => $peerEvaluations->count() > 0 ? $peerEvaluations->avg('c5_terlambat') : 0,
                         ];
                     @endphp
 
@@ -263,7 +308,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ranking</th>
+                                    Posisi</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Nama</th>
                                 <th
@@ -473,11 +518,34 @@
 
     @push('scripts')
         <script>
-            // Auto submit form when period is selected
-            document.getElementById('periode_id').addEventListener('change', function() {
-                if (this.value) {
-                    this.form.submit();
-                }
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                const compareBtn = document.getElementById('compareBtn');
+                const btnText = compareBtn.querySelector('.btn-text');
+                const btnLoading = compareBtn.querySelector('.btn-loading');
+
+                form.addEventListener('submit', function(e) {
+                    const periodeSelect = document.getElementById('periode_id');
+
+                    if (!periodeSelect.value) {
+                        e.preventDefault();
+                        alert('Silakan pilih periode untuk perbandingan.');
+                        return;
+                    }
+
+                    // Show loading state
+                    btnText.classList.add('hidden');
+                    btnLoading.classList.remove('hidden');
+                    compareBtn.disabled = true;
+                });
+
+                // Auto submit form when period is selected (optional)
+                document.getElementById('periode_id').addEventListener('change', function() {
+                    if (this.value && document.querySelector('.bg-blue-50')) {
+                        // Only auto-submit if there's already comparison data showing
+                        form.submit();
+                    }
+                });
             });
         </script>
     @endpush
